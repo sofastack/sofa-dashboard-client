@@ -27,9 +27,9 @@ public class SofaDashboardProperties {
 
     private static final String              DEFAULT_ADDRESS = "localhost:2181";
 
-    private SofaDashboardClientProperties    client;
+    private SofaDashboardClientProperties    client          = new SofaDashboardClientProperties();
 
-    private SofaDashboardZookeeperProperties zookeeper;
+    private SofaDashboardZookeeperProperties zookeeper       = new SofaDashboardZookeeperProperties();
 
     public SofaDashboardClientProperties getClient() {
         return client;
@@ -51,12 +51,12 @@ public class SofaDashboardProperties {
         /**
          * 是否可用
          */
-        private boolean enable;
+        private boolean enable     = true;
 
         /**
          * 实例地址
          */
-        private String  instanceIp;
+        private String  instanceIp = "";
 
         public boolean isEnable() {
             return enable;

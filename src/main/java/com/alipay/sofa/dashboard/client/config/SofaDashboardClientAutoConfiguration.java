@@ -47,8 +47,8 @@ public class SofaDashboardClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SofaDashboardClientRegister registrator(SofaDashboardProperties sofaClientProperties,
-                                                   ZkCommandClient commandClient) {
+    public SofaDashboardClientRegister sofaDashboardClientRegister(SofaDashboardProperties sofaClientProperties,
+                                                                   ZkCommandClient commandClient) {
         return new SofaDashboardClientRegister(sofaClientProperties, commandClient, environment);
     }
 
@@ -60,13 +60,13 @@ public class SofaDashboardClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ApplicationContextRefreshedListener applicationContextRefreshedListener() {
+    public ApplicationContextRefreshedListener sofaDashboardClientApplicationContextRefreshedListener() {
         return new ApplicationContextRefreshedListener();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ApplicationContextClosedListener applicationContextClosedListener() {
+    public ApplicationContextClosedListener sofaDashboardClientApplicationContextClosedListener() {
         return new ApplicationContextClosedListener();
     }
 }
