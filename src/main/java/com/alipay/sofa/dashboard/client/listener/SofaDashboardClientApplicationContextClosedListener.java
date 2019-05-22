@@ -28,7 +28,9 @@ import org.springframework.context.event.ContextClosedEvent;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/4/11 6:53 PM
  * @since:
  **/
-public class ApplicationContextClosedListener implements ApplicationListener<ContextClosedEvent> {
+public class SofaDashboardClientApplicationContextClosedListener
+                                                                implements
+                                                                ApplicationListener<ContextClosedEvent> {
 
     @Autowired
     private SofaDashboardClientRegister sofaDashboardClientRegister;
