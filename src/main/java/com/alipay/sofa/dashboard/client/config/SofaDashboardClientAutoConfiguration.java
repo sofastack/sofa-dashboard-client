@@ -50,10 +50,8 @@ public class SofaDashboardClientAutoConfiguration {
     @ConditionalOnMissingBean
     public SofaDashboardClientRegister sofaDashboardClientRegister(SofaDashboardProperties sofaClientProperties,
                                                                    ZkCommandClient commandClient) {
-        if (sofaClientProperties.getClient().isEnable()) {
-            if (StringUtils.isEmpty(sofaClientProperties.getZookeeper().getAddress())) {
-                throw new RuntimeException("please config dashboard client zookeeper address.");
-            }
+        if (StringUtils.isEmpty(sofaClientProperties.getZookeeper().getAddress())) {
+            throw new RuntimeException("please config dashboard client zookeeper address.");
         }
         return new SofaDashboardClientRegister(sofaClientProperties, commandClient, environment);
     }
