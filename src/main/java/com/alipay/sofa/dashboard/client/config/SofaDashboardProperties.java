@@ -25,11 +25,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "com.alipay.sofa.dashboard")
 public class SofaDashboardProperties {
 
-    private static final String              DEFAULT_ADDRESS = "localhost:2181";
+    private SofaDashboardClientProperties    client    = new SofaDashboardClientProperties();
 
-    private SofaDashboardClientProperties    client;
-
-    private SofaDashboardZookeeperProperties zookeeper;
+    private SofaDashboardZookeeperProperties zookeeper = new SofaDashboardZookeeperProperties();
 
     public SofaDashboardClientProperties getClient() {
         return client;
@@ -51,12 +49,12 @@ public class SofaDashboardProperties {
         /**
          * 是否可用
          */
-        private boolean enable;
+        private boolean enable     = true;
 
         /**
          * 实例地址
          */
-        private String  instanceIp;
+        private String  instanceIp = "";
 
         public boolean isEnable() {
             return enable;
@@ -83,7 +81,7 @@ public class SofaDashboardProperties {
 
     public static class SofaDashboardZookeeperProperties {
 
-        private String address             = DEFAULT_ADDRESS;
+        private String address;
 
         private int    baseSleepTimeMs     = 1000;
 

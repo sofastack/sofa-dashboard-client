@@ -16,20 +16,21 @@
  */
 package com.alipay.sofa.dashboard.client.config;
 
-import com.alipay.sofa.dashboard.client.listener.ApplicationContextClosedListener;
-import com.alipay.sofa.dashboard.client.listener.ApplicationContextRefreshedListener;
+import com.alipay.sofa.dashboard.client.listener.SofaDashboardClientApplicationContextClosedListener;
+import com.alipay.sofa.dashboard.client.listener.SofaDashboardClientApplicationContextRefreshedListener;
 import com.alipay.sofa.dashboard.client.registration.SofaDashboardClientRegister;
 import com.alipay.sofa.dashboard.client.zookeeper.ZkCommandClient;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/15 2:03 PM
@@ -38,7 +39,7 @@ import org.springframework.core.env.Environment;
 @Configuration
 @EnableConfigurationProperties({ SofaDashboardProperties.class })
 @ConditionalOnWebApplication
-@Conditional(SofaDashboardClientEnabledCondition.class)
+@ConditionalOnProperty(prefix = "com.alipay.sofa.dashboard.client", value = "enable", matchIfMissing = true)
 @ConditionalOnClass(CuratorFramework.class)
 public class SofaDashboardClientAutoConfiguration {
 
@@ -47,8 +48,11 @@ public class SofaDashboardClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SofaDashboardClientRegister registrator(SofaDashboardProperties sofaClientProperties,
-                                                   ZkCommandClient commandClient) {
+    public SofaDashboardClientRegister sofaDashboardClientRegister(SofaDashboardProperties sofaClientProperties,
+                                                                   ZkCommandClient commandClient) {
+        if (StringUtils.isEmpty(sofaClientProperties.getZookeeper().getAddress())) {
+            throw new RuntimeException("please config dashboard client zookeeper address.");
+        }
         return new SofaDashboardClientRegister(sofaClientProperties, commandClient, environment);
     }
 
@@ -60,13 +64,13 @@ public class SofaDashboardClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ApplicationContextRefreshedListener applicationContextRefreshedListener() {
-        return new ApplicationContextRefreshedListener();
+    public SofaDashboardClientApplicationContextRefreshedListener sofaDashboardClientApplicationContextRefreshedListener() {
+        return new SofaDashboardClientApplicationContextRefreshedListener();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ApplicationContextClosedListener applicationContextClosedListener() {
-        return new ApplicationContextClosedListener();
+    public SofaDashboardClientApplicationContextClosedListener sofaDashboardClientApplicationContextClosedListener() {
+        return new SofaDashboardClientApplicationContextClosedListener();
     }
 }

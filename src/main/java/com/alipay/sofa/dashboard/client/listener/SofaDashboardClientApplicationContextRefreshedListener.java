@@ -33,11 +33,12 @@ import org.springframework.context.event.ContextRefreshedEvent;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/19 2:17 PM
  * @since:
  **/
-public class ApplicationContextRefreshedListener implements
-                                                ApplicationListener<ContextRefreshedEvent> {
+public class SofaDashboardClientApplicationContextRefreshedListener
+                                                                   implements
+                                                                   ApplicationListener<ContextRefreshedEvent> {
 
     private static final Logger         LOGGER = LoggerFactory
-                                                   .getLogger(ApplicationContextRefreshedListener.class);
+                                                   .getLogger(SofaDashboardClientApplicationContextRefreshedListener.class);
 
     @Autowired
     private ReadinessCheckListener      readinessCheckListener;
