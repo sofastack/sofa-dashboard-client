@@ -23,7 +23,7 @@ SOFADashboard client 并非是直接通过 API 调用的方式将自身应用信
 <dependency>
   <groupId>com.alipay.sofa</groupId>
   <artifactId>sofa-dashboard-client</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
