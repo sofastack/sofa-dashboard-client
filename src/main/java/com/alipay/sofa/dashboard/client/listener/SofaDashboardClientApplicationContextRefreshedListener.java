@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.dashboard.client.listener;
 
+import com.alipay.sofa.dashboard.client.model.ZkClientReconnectedEvent;
 import com.alipay.sofa.dashboard.client.registration.SofaDashboardClientRegister;
 import com.alipay.sofa.healthcheck.startup.ReadinessCheckListener;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 
 /**
  *
@@ -49,6 +51,19 @@ public class SofaDashboardClientApplicationContextRefreshedListener
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         LOGGER.info("Start to register sofa dashboard client.");
+        doRegister();
+    }
+
+    @EventListener(ZkClientReconnectedEvent.class)
+    public void onEvent() {
+        LOGGER.info("Recover sofa dashboard client register.");
+        doRegister();
+    }
+
+    /**
+     * Check state from readiness check and do register
+     */
+    private void doRegister() {
         String status = readinessCheckListener.getHealthCheckerStatus()
                         && readinessCheckListener.getHealthCallbackStatus() ? Status.UP.toString()
             : Status.DOWN.toString();
@@ -57,4 +72,5 @@ public class SofaDashboardClientApplicationContextRefreshedListener
             LOGGER.info("sofa dashboard client register success.");
         }
     }
+
 }

@@ -17,12 +17,17 @@
 package com.alipay.sofa.dashboard.client.zookeeper;
 
 import com.alipay.sofa.dashboard.client.config.SofaDashboardProperties;
+import com.alipay.sofa.dashboard.client.model.ZkClientReconnectedEvent;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Provide an instance of the ZooKeeper client in the Spring application environment
@@ -31,23 +36,39 @@ import org.springframework.beans.factory.annotation.Autowired;
  **/
 public class ZkCommandClient implements InitializingBean {
 
-    private CuratorFramework curatorClient;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZkCommandClient.class);
+
+    private CuratorFramework    curatorClient;
 
     @Autowired
-    SofaDashboardProperties  sofaDashboardProperties;
+    SofaDashboardProperties     sofaDashboardProperties;
+
+    @Autowired
+    private ApplicationContext  context;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         // custom policy
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(sofaDashboardProperties
-            .getZookeeper().getBaseSleepTimeMs(), sofaDashboardProperties.getZookeeper()
-            .getMaxRetries());
+        RetryPolicy retryPolicy = new ExponentialBackoffRetry(
+                sofaDashboardProperties.getZookeeper().getBaseSleepTimeMs(),
+                sofaDashboardProperties.getZookeeper().getMaxRetries());
         // to build curatorClient
         curatorClient = CuratorFrameworkFactory.builder()
-            .connectString(sofaDashboardProperties.getZookeeper().getAddress())
-            .sessionTimeoutMs(sofaDashboardProperties.getZookeeper().getSessionTimeoutMs())
-            .connectionTimeoutMs(sofaDashboardProperties.getZookeeper().getConnectionTimeoutMs())
-            .retryPolicy(retryPolicy).build();
+                .connectString(sofaDashboardProperties.getZookeeper().getAddress())
+                .sessionTimeoutMs(sofaDashboardProperties.getZookeeper().getSessionTimeoutMs())
+                .connectionTimeoutMs(
+                        sofaDashboardProperties.getZookeeper().getConnectionTimeoutMs())
+                .retryPolicy(retryPolicy).build();
+
+        // broadcast connection reconnected state for registry state recovering
+        curatorClient.getConnectionStateListenable().addListener((client, newState) -> {
+            if (newState == ConnectionState.RECONNECTED) {
+                LOGGER.info("Reconnect to Zookeeper, {} is called",
+                        ZkClientReconnectedEvent.class.getSimpleName());
+                context.publishEvent(new ZkClientReconnectedEvent());
+            }
+        });
+
         curatorClient.start();
     }
 
