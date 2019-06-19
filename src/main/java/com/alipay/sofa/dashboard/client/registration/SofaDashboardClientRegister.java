@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.dashboard.client.registration;
 
+import com.alipay.sofa.common.utils.StringUtil;
 import com.alipay.sofa.dashboard.client.config.SofaDashboardProperties;
 import com.alipay.sofa.dashboard.client.common.Constants;
 import com.alipay.sofa.dashboard.client.model.Application;
@@ -54,7 +55,12 @@ public class SofaDashboardClientRegister {
         this.sofaDashboardProperties = sofaClientProperties;
         this.zkCommandClient = zkCommandClient;
         this.appName = environment.getProperty(Constants.APP_NAME_KEY);
-        this.port = Integer.parseInt(environment.getProperty(Constants.SERVER_PORT_KEY));
+        String port = environment.getProperty(Constants.SERVER_PORT_KEY);
+        if (StringUtil.isNotEmpty(port)) {
+            this.port = Integer.parseInt(port);
+        } else {
+            this.port = Constants.SERVER_DEFAULT_PORT;
+        }
     }
 
     public boolean register(String status) {
