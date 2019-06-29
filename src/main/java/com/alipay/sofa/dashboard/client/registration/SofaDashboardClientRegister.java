@@ -56,7 +56,12 @@ public class SofaDashboardClientRegister {
         this.zkCommandClient = zkCommandClient;
         this.appName = environment.getProperty(Constants.APP_NAME_KEY);
         String port = environment.getProperty(Constants.SERVER_PORT_KEY, Constants.SERVER_DEFAULT_PORT);
-        this.port = Integer.parseInt(port);
+        try {
+            this.port = Integer.parseInt(port);
+        } catch (Exception e) {
+            LOGGER.error("server port parse error, port:{}", port);
+            throw new RuntimeException("server port parse error");
+        }
     }
 
     public boolean register(String status) {
