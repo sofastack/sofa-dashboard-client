@@ -16,12 +16,11 @@
  */
 package com.alipay.sofa.dashboard.client.registration;
 
-import com.alipay.sofa.common.utils.StringUtil;
-import com.alipay.sofa.dashboard.client.config.SofaDashboardProperties;
 import com.alipay.sofa.dashboard.client.common.Constants;
-import com.alipay.sofa.dashboard.client.model.Application;
 import com.alipay.sofa.dashboard.client.common.NetworkAddressUtils;
 import com.alipay.sofa.dashboard.client.common.ObjectBytesUtils;
+import com.alipay.sofa.dashboard.client.config.SofaDashboardProperties;
+import com.alipay.sofa.dashboard.client.model.Application;
 import com.alipay.sofa.dashboard.client.zookeeper.ZkCommandClient;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
@@ -29,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
+
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -55,12 +55,8 @@ public class SofaDashboardClientRegister {
         this.sofaDashboardProperties = sofaClientProperties;
         this.zkCommandClient = zkCommandClient;
         this.appName = environment.getProperty(Constants.APP_NAME_KEY);
-        String port = environment.getProperty(Constants.SERVER_PORT_KEY);
-        if (StringUtil.isNotEmpty(port)) {
-            this.port = Integer.parseInt(port);
-        } else {
-            this.port = Constants.SERVER_DEFAULT_PORT;
-        }
+        String port = environment.getProperty(Constants.SERVER_PORT_KEY, Constants.SERVER_DEFAULT_PORT);
+        this.port = Integer.parseInt(port);
     }
 
     public boolean register(String status) {

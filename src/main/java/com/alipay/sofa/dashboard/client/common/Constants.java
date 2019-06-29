@@ -29,5 +29,5 @@ public class Constants {
 
     public static final String APP_NAME_KEY              = "spring.application.name";
     public static final String SERVER_PORT_KEY           = "server.port";
-    public static final int    SERVER_DEFAULT_PORT       = 8080;
+    public static final String SERVER_DEFAULT_PORT       = "8080";
 }
