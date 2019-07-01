@@ -1,0 +1,8 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.alipay.sofa.dashboard.client.config.AppDimensionConfiguration,\
+  com.alipay.sofa.dashboard.client.config.AppPublisherConfiguration,\
+  com.alipay.sofa.dashboard.client.config.DimensionStoreConfiguration
+
+org.springframework.context.ApplicationListener=\
+  com.alipay.sofa.dashboard.client.listener.SofaDashboardContextRefreshedListener,\
+  com.alipay.sofa.dashboard.client.listener.SofaDashboardContextClosedListener
