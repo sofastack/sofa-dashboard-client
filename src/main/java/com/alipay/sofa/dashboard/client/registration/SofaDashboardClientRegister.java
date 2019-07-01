@@ -55,7 +55,8 @@ public class SofaDashboardClientRegister {
         this.sofaDashboardProperties = sofaClientProperties;
         this.zkCommandClient = zkCommandClient;
         this.appName = environment.getProperty(Constants.APP_NAME_KEY);
-        String port = environment.getProperty(Constants.SERVER_PORT_KEY, Constants.SERVER_DEFAULT_PORT);
+        String port = environment.getProperty(Constants.SERVER_PORT_KEY,
+            Constants.SERVER_DEFAULT_PORT);
         try {
             this.port = Integer.parseInt(port);
         } catch (Exception e) {
