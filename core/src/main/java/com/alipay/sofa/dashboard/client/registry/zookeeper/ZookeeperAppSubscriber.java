@@ -59,9 +59,8 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
             TreeCache cache = new TreeCache(curatorFramework,
                 ZookeeperConstants.SOFA_BOOT_CLIENT_INSTANCE);
             TreeCacheListener listener = (client, event) -> {
-                String dataPath =event.getData() == null ? null: event.getData().getPath();
-                LOGGER.info("Dashboard client event type = {}, path= {}",
-                    event.getType(), dataPath);
+                String dataPath = event.getData() == null ? null : event.getData().getPath();
+                LOGGER.info("Dashboard client event type = {}, path= {}", event.getType(), dataPath);
                 switch (event.getType()) {
                     case NODE_ADDED:
                     case NODE_UPDATED:
@@ -161,7 +160,7 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
             }
         });
         this.applications = newCacheInstance;
-        LOGGER.info("Dashboard client init success.current app count is {}", applications.size());
+        LOGGER.info("Dashboard client init success, current app count is {}", newCacheInstance.size());
     }
 
     /**
@@ -189,6 +188,10 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
      */
     private void doRemoveApplications(TreeCacheEvent event) {
         ChildData chileData = event.getData();
+        if (chileData == null) {
+            return; // Maybe null if session is timeout
+        }
+
         Application app = client.parseSessionNode(chileData.getPath());
         if (app != null) {
             applications.computeIfPresent(app.getAppName(), (key, value) -> {
