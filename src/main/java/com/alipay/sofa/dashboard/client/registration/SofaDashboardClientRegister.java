@@ -16,11 +16,11 @@
  */
 package com.alipay.sofa.dashboard.client.registration;
 
-import com.alipay.sofa.dashboard.client.config.SofaDashboardProperties;
 import com.alipay.sofa.dashboard.client.common.Constants;
-import com.alipay.sofa.dashboard.client.model.Application;
 import com.alipay.sofa.dashboard.client.common.NetworkAddressUtils;
 import com.alipay.sofa.dashboard.client.common.ObjectBytesUtils;
+import com.alipay.sofa.dashboard.client.config.SofaDashboardProperties;
+import com.alipay.sofa.dashboard.client.model.Application;
 import com.alipay.sofa.dashboard.client.zookeeper.ZkCommandClient;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
@@ -53,7 +53,14 @@ public class SofaDashboardClientRegister {
         this.sofaDashboardProperties = sofaClientProperties;
         this.zkCommandClient = zkCommandClient;
         this.appName = environment.getProperty(Constants.APP_NAME_KEY);
-        this.port = Integer.parseInt(environment.getProperty(Constants.SERVER_PORT_KEY));
+        String port = environment.getProperty(Constants.SERVER_PORT_KEY,
+            Constants.SERVER_DEFAULT_PORT);
+        try {
+            this.port = Integer.parseInt(port);
+        } catch (Exception e) {
+            LOGGER.error("server port parse error, port:{}", port);
+            throw new RuntimeException("server port parse error");
+        }
     }
 
     public boolean register(String status) {
