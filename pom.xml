@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.alipay.sofa</groupId>
 		<artifactId>sofaboot-dependencies</artifactId>
-		<version>3.0.0</version>
+		<version>3.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.alipay.sofa</groupId>
@@ -83,6 +83,28 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alipay.sofa</groupId>
+			<artifactId>sofa-ark-compatible-springboot2</artifactId>
+			<version>0.6.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>sofa-ark-spi</artifactId>
+					<groupId>com.alipay.sofa</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>log-sofa-boot-starter</artifactId>
+					<groupId>com.alipay.sofa.common</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<artifactId>sofa-ark-spi</artifactId>
+			<groupId>com.alipay.sofa</groupId>
+			<version>0.6.0</version>
 		</dependency>
 
 		<!-- test -->

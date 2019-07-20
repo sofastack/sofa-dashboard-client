@@ -16,6 +16,7 @@ package com.alipay.sofa.dashboard.client.common;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.alipay.sofa.dashboard.client.config.SofaDashboardProperties;
 import org.springframework.util.StringUtils;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -40,6 +41,17 @@ public class NetworkAddressUtils {
     private static String        HOST_NAME;
 
     private static String        DEFAULT_HOST_NAME    = "app";
+
+    public static String getLocalIp(SofaDashboardProperties sofaDashboardProperties) {
+        String ip;
+        NetworkAddressUtils.calculate(null, null);
+        if (StringUtils.isEmpty(sofaDashboardProperties.getClient().getInstanceIp())) {
+            ip = NetworkAddressUtils.getLocalIP();
+        } else {
+            ip = sofaDashboardProperties.getClient().getInstanceIp();
+        }
+        return ip;
+    }
 
     /**
      * this method should be invoked fisrt

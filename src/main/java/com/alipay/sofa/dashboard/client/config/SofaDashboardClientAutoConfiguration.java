@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.dashboard.client.config;
 
+import com.alipay.sofa.ark.springboot2.endpoint.IntrospectBizEndpoint;
+import com.alipay.sofa.dashboard.client.listener.BizStateListener;
 import com.alipay.sofa.dashboard.client.listener.SofaDashboardClientApplicationContextClosedListener;
 import com.alipay.sofa.dashboard.client.listener.SofaDashboardClientApplicationContextRefreshedListener;
 import com.alipay.sofa.dashboard.client.registration.SofaDashboardClientRegister;
@@ -60,6 +62,13 @@ public class SofaDashboardClientAutoConfiguration {
     @ConditionalOnMissingBean
     public ZkCommandClient zkCommandClient() {
         return new ZkCommandClient();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public BizStateListener bizStateListener(SofaDashboardProperties sofaClientProperties,
+                                             ZkCommandClient commandClient) {
+        return new BizStateListener(commandClient, sofaClientProperties, environment);
     }
 
     @Bean

@@ -18,12 +18,14 @@ package com.alipay.sofa.dashboard.client.base;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ImportResource;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/4/10 10:23 AM
  * @since:
  **/
 @SpringBootApplication
+@ImportResource("classpath:spring.xml")
 public class SpringBootWebApplication {
     public static void main(String[] args) throws Exception {
         SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);

@@ -46,6 +46,9 @@ public class SofaDashboardClientApplicationContextRefreshedListener
     @Autowired
     private SofaDashboardClientRegister sofaDashboardClientRegister;
 
+    @Autowired
+    private BizStateListener            bizStateListener;
+
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         LOGGER.info("Start to register sofa dashboard client.");
@@ -54,6 +57,7 @@ public class SofaDashboardClientApplicationContextRefreshedListener
             : Status.DOWN.toString();
         boolean isRegister = sofaDashboardClientRegister.register(status);
         if (isRegister) {
+            bizStateListener.start();
             LOGGER.info("sofa dashboard client register success.");
         }
     }

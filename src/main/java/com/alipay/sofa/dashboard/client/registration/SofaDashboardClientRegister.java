@@ -27,7 +27,6 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
-import org.springframework.util.StringUtils;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -100,26 +99,15 @@ public class SofaDashboardClientRegister {
      * @return
      */
     public String getRegisteredId() {
-        return getLocalIp(sofaDashboardProperties) + ":" + port;
+        return NetworkAddressUtils.getLocalIp(sofaDashboardProperties) + ":" + port;
     }
 
     protected Application createApplication(String status) {
         Application application = new Application();
         application.setAppName(appName);
-        application.setHostName(getLocalIp(sofaDashboardProperties));
+        application.setHostName(NetworkAddressUtils.getLocalIp(sofaDashboardProperties));
         application.setPort(port);
         application.setAppState(status);
         return application;
-    }
-
-    private static String getLocalIp(SofaDashboardProperties sofaDashboardProperties) {
-        String ip;
-        NetworkAddressUtils.calculate(null, null);
-        if (StringUtils.isEmpty(sofaDashboardProperties.getClient().getInstanceIp())) {
-            ip = NetworkAddressUtils.getLocalIP();
-        } else {
-            ip = sofaDashboardProperties.getClient().getInstanceIp();
-        }
-        return ip;
     }
 }

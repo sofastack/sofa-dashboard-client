@@ -26,6 +26,7 @@ public class Constants {
     public static final String SEPARATOR                 = "/";
     public static final String SOFA_BOOT_CLIENT_ROOT     = SEPARATOR + "apps";
     public static final String SOFA_BOOT_CLIENT_INSTANCE = SEPARATOR + "instance";
+    public static final String SOFA_BOOT_CLIENT_BIZ      = SEPARATOR + "biz";
 
     public static final String APP_NAME_KEY              = "spring.application.name";
     public static final String SERVER_PORT_KEY           = "server.port";
