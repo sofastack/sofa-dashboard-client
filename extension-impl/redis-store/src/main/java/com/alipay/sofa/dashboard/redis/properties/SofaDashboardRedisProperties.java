@@ -22,8 +22,9 @@ import java.time.Duration;
 import java.util.List;
 
 /**
- * @author chen.pengzhi (chpengzh@foxmail.com)
+ * Configuration properties for SOFADashboard redis store.
  *
+ * @author chen.pengzhi (chpengzh@foxmail.com)
  * @see org.springframework.boot.autoconfigure.data.redis.RedisProperties
  */
 @ConfigurationProperties(prefix = "com.alipay.sofa.dashboard.redis")
@@ -306,26 +307,6 @@ public class SofaDashboardRedisProperties {
 
         public void setNodes(List<String> nodes) {
             this.nodes = nodes;
-        }
-
-    }
-
-    /**
-     * Jedis client properties.
-     */
-    public static class Jedis {
-
-        /**
-         * Jedis pool configuration.
-         */
-        private Pool pool;
-
-        public Pool getPool() {
-            return this.pool;
-        }
-
-        public void setPool(Pool pool) {
-            this.pool = pool;
         }
 
     }
