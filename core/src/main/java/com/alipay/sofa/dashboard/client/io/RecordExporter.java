@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.dashboard.client.io;
 
+import com.alipay.sofa.dashboard.client.model.common.HostAndPort;
 import com.alipay.sofa.dashboard.client.model.io.StoreRecord;
 
 import java.util.List;
@@ -28,9 +29,9 @@ public interface RecordExporter {
     /**
      * Query latest records
      *
-     * @param instanceId    instanceId
-     * @param schemeName dimensionName
-     * @param duration      last duration(ms)
+     * @param hostAndPort application address
+     * @param schemeName  dimensionName
+     * @param duration    last duration(ms)
      */
-    List<StoreRecord> getLatestRecords(String instanceId, String schemeName, long duration);
+    List<StoreRecord> getLatestRecords(HostAndPort hostAndPort, String schemeName, long duration);
 }

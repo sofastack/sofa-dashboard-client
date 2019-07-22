@@ -25,6 +25,8 @@ import java.util.Map;
 /**
  * A model copy of {@link org.springframework.boot.actuate.env.EnvironmentEndpoint.PropertySourceDescriptor}
  * A description of a {@link PropertySource}.
+ *
+ * @author chen.pengzhi (chpengzh@foxmail.com)
  */
 public class PropertySourceDescriptor implements Serializable {
 

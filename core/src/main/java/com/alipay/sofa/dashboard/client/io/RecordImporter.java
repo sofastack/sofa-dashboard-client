@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.dashboard.client.io;
 
+import com.alipay.sofa.dashboard.client.model.common.HostAndPort;
 import com.alipay.sofa.dashboard.client.model.io.StoreRecord;
 
 import java.util.List;
@@ -29,17 +30,17 @@ public interface RecordImporter {
     /**
      * Prepare tables
      *
-     * @param instanceId       application address(format as ${ip}_${port})
+     * @param hostAndPort      application address(format as ${ip}_${port})
      * @param dimensionSchemes scheme definitions
      */
-    void createTablesIfNotExists(String instanceId, Set<String> dimensionSchemes);
+    void createTablesIfNotExists(HostAndPort hostAndPort, Set<String> dimensionSchemes);
 
     /**
      * Append a set of new records
      *
-     * @param instanceId application address(format as ${ip}_${port})
-     * @param records    dimension record to store
+     * @param hostAndPort application address(format as ${ip}_${port})
+     * @param records     dimension record to store
      */
-    void addRecords(String instanceId, List<StoreRecord> records);
+    void addRecords(HostAndPort hostAndPort, List<StoreRecord> records);
 
 }

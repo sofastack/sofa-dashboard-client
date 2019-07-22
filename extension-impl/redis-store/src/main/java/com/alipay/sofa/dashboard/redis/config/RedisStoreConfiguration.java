@@ -57,8 +57,8 @@ public class RedisStoreConfiguration implements Closeable {
 
     @Bean
     @ConditionalOnMissingBean
-    public RedisRecordImporter getImporter() {
-        return new RedisRecordImporter(template);
+    public RedisRecordImporter getImporter(SofaDashboardRedisProperties props) {
+        return new RedisRecordImporter(template, props.getRecordTtl());
     }
 
     @Bean

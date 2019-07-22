@@ -31,6 +31,7 @@ import org.springframework.lang.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
 
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
@@ -60,7 +61,8 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
                 ZookeeperConstants.SOFA_BOOT_CLIENT_INSTANCE);
             TreeCacheListener listener = (client, event) -> {
                 String dataPath = event.getData() == null ? null : event.getData().getPath();
-                LOGGER.info("Dashboard client event type = {}, path= {}", event.getType(), dataPath);
+                LOGGER
+                    .info("Dashboard client event type = {}, path= {}", event.getType(), dataPath);
                 switch (event.getType()) {
                     case NODE_ADDED:
                     case NODE_UPDATED:
@@ -117,6 +119,24 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
         return apps == null ? new ArrayList<>() : new ArrayList<>(apps);
     }
 
+    @Override
+    public List<String> getAllNames() {
+        // Get a readonly copy
+        Set<String> copy = Collections.unmodifiableSet(this.applications.keySet());
+
+        return new ArrayList<>(copy);
+    }
+
+    @Override
+    public Map<String, Integer> summaryCounts() {
+        // Get a readonly copy
+        Map<String, Set<Application>> copy = Collections.unmodifiableMap(this.applications);
+
+        return copy.entrySet().stream().collect(Collectors.toMap(
+            Map.Entry::getKey,
+            it -> it.getValue() == null ? 0 : it.getValue().size()));
+    }
+
     /**
      * Fetch all instance information from zookeeper.
      *
@@ -160,7 +180,8 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
             }
         });
         this.applications = newCacheInstance;
-        LOGGER.info("Dashboard client init success, current app count is {}", newCacheInstance.size());
+        LOGGER.info("Dashboard client init success, current app count is {}",
+            newCacheInstance.size());
     }
 
     /**

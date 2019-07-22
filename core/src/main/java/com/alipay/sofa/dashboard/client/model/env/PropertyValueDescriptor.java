@@ -21,6 +21,8 @@ import java.io.Serializable;
 /**
  * A model copy of {@link org.springframework.boot.actuate.env.EnvironmentEndpoint.PropertyValueDescriptor}
  * A description of a property's value, including its origin if available.
+ *
+ * @author chen.pengzhi (chpengzh@foxmail.com)
  */
 public class PropertyValueDescriptor implements Serializable {
 

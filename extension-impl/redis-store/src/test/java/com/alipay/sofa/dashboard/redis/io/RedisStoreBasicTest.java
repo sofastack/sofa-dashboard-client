@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.dashboard.redis.io;
 
+import com.alipay.sofa.dashboard.client.model.common.HostAndPort;
 import com.alipay.sofa.dashboard.client.model.io.StoreRecord;
 import com.alipay.sofa.dashboard.redis.context.RedisTestContext;
 import com.google.common.collect.Sets;
@@ -63,15 +64,15 @@ public class RedisStoreBasicTest {
 
     @Test
     public void writeRecordAndRead() {
-        final String instanceId = "127.0.0.1_8080";
+        final HostAndPort hostAndPort = new HostAndPort("127.0.0.1", 8080);
         final String schemeName = "test";
         List<StoreRecord> samples = Lists.newArrayList(StoreRecord.newBuilder()
             .schemeName(schemeName).timestamp(System.currentTimeMillis()).value("aaaaa").build());
 
-        importer.createTablesIfNotExists(instanceId, Sets.newHashSet(schemeName));
-        importer.addRecords(instanceId, samples);
+        importer.createTablesIfNotExists(hostAndPort, Sets.newHashSet(schemeName));
+        importer.addRecords(hostAndPort, samples);
 
-        List<StoreRecord> query = exporter.getLatestRecords(instanceId, schemeName, 60_000);
+        List<StoreRecord> query = exporter.getLatestRecords(hostAndPort, schemeName, 60_000);
         Assert.assertArrayEquals(samples.toArray(), query.toArray());
     }
 }

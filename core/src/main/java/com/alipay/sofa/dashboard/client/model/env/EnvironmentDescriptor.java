@@ -25,6 +25,8 @@ import java.util.List;
 /**
  * A model copy of {@link org.springframework.boot.actuate.env.EnvironmentEndpoint.EnvironmentDescriptor}
  * A description of an {@link Environment}.
+ *
+ * @author chen.pengzhi (chpengzh@foxmail.com)
  */
 public class EnvironmentDescriptor implements Serializable {
 

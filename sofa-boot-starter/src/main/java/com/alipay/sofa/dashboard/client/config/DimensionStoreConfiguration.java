@@ -18,13 +18,12 @@ package com.alipay.sofa.dashboard.client.config;
 
 import com.alipay.sofa.dashboard.client.dimension.ApplicationDimension;
 import com.alipay.sofa.dashboard.client.io.RecordImporter;
-import com.alipay.sofa.dashboard.client.model.common.Application;
+import com.alipay.sofa.dashboard.client.model.common.HostAndPort;
 import com.alipay.sofa.dashboard.client.model.io.StoreRecord;
 import com.alipay.sofa.dashboard.client.properties.SofaDashboardClientProperties;
 import com.alipay.sofa.dashboard.client.schedule.DimensionRecordingSchedule;
 import com.alipay.sofa.dashboard.client.utils.NetworkAddressUtils;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -56,18 +55,18 @@ public class DimensionStoreConfiguration {
                                                           ObjectProvider<RecordImporter> storeProvider,
                                                           SofaDashboardClientProperties props,
                                                           Environment env) {
-        String instanceId = getInstanceId(env, props);
+        HostAndPort hostAndPort = getHostAndPort(env, props);
         RecordImporter importer = storeProvider.getIfAvailable(EmptyRecordImporter::new);
-        return new DimensionRecordingSchedule(instanceId, dimensions, importer,
+        return new DimensionRecordingSchedule(hostAndPort, dimensions, importer,
             props.getStoreInitDelayExp(), props.getStoreUploadPeriodExp());
     }
 
-    private String getInstanceId(Environment env, SofaDashboardClientProperties properties) {
+    private HostAndPort getHostAndPort(Environment env, SofaDashboardClientProperties properties) {
         NetworkAddressUtils.calculate(null, null);
         String ip = StringUtils.isEmpty(properties.getInstanceIp()) ? NetworkAddressUtils
             .getLocalIP() : properties.getInstanceIp();
         int port = Integer.parseInt(env.getProperty(KEY_SERVER_PORT, DEFAULT_SERVER_PORT));
-        return String.format("%s_%d", ip.replace(":", "_"), port);
+        return new HostAndPort(ip, port);
     }
 
     /**
@@ -76,12 +75,12 @@ public class DimensionStoreConfiguration {
     private static class EmptyRecordImporter implements RecordImporter {
 
         @Override
-        public void createTablesIfNotExists(String instanceId, Set<String> dimensionSchemes) {
+        public void createTablesIfNotExists(HostAndPort instanceId, Set<String> dimensionSchemes) {
 
         }
 
         @Override
-        public void addRecords(String instanceId, List<StoreRecord> records) {
+        public void addRecords(HostAndPort instanceId, List<StoreRecord> records) {
 
         }
     }

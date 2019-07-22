@@ -17,6 +17,7 @@
 package com.alipay.sofa.dashboard.redis.io;
 
 import com.alipay.sofa.dashboard.client.io.RecordExporter;
+import com.alipay.sofa.dashboard.client.model.common.HostAndPort;
 import com.alipay.sofa.dashboard.client.model.io.StoreRecord;
 import com.alipay.sofa.dashboard.client.utils.JsonUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -36,9 +37,9 @@ public class RedisRecordExporter extends RedisStoreBase implements RecordExporte
     }
 
     @Override
-    public List<StoreRecord> getLatestRecords(String instanceId, String schemeName,
+    public List<StoreRecord> getLatestRecords(HostAndPort hostAndPort, String schemeName,
                                               long duration) {
-        String keyName = getKeyName(instanceId, schemeName);
+        String keyName = getKeyName(hostAndPort.toInstanceId(), schemeName);
         long current = System.currentTimeMillis();
         long queryMin = System.currentTimeMillis() - duration;
 

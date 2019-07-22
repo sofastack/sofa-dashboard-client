@@ -17,15 +17,18 @@
 package com.alipay.sofa.dashboard.redis.io;
 
 import com.alipay.sofa.dashboard.client.io.RecordImporter;
+import com.alipay.sofa.dashboard.client.model.common.HostAndPort;
 import com.alipay.sofa.dashboard.client.model.io.StoreRecord;
 import com.alipay.sofa.dashboard.client.utils.JsonUtils;
-import com.alipay.sofa.dashboard.redis.properties.SofaDashboardRedisProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
@@ -36,34 +39,33 @@ public class RedisRecordImporter extends RedisStoreBase implements RecordImporte
 
     private final StringRedisTemplate template;
 
-    public RedisRecordImporter(StringRedisTemplate template) {
+    private final long                timeoutTtl;
+
+    public RedisRecordImporter(StringRedisTemplate template, long timeoutTtl) {
         this.template = template;
+        this.timeoutTtl = TimeUnit.SECONDS.toMillis(timeoutTtl);
     }
 
     @Override
-    public void createTablesIfNotExists(String instanceId, Set<String> dimensionSchemes) {
-        dimensionSchemes.forEach(name -> {
-            // 设置数据超时时间
-            //String keyName = getKeyName(instanceId, name);
-            //template.boundZSetOps(keyName)
-            //    .expire(props.getRecordTtl(), TimeUnit.SECONDS);
-            //TODO: Add expire logic for each z-set element?
+    public void createTablesIfNotExists(HostAndPort hostAndPort, Set<String> dimensionSchemes) {
+        // Do nothing in redis case
+    }
+
+    @Override
+    public void addRecords(HostAndPort hostAndPort, List<StoreRecord> records) {
+        template.executePipelined((RedisCallback<Void>) connection -> {
+            for (StoreRecord record : records) {
+                byte[] keyName = getKeyName(hostAndPort.toInstanceId(), record.getSchemeName())
+                    .getBytes(Charset.defaultCharset());
+                byte[] value = JsonUtils.toJsonString(record)
+                    .getBytes(Charset.defaultCharset());
+                long score = record.getTimestamp();
+                long expire = score - timeoutTtl;
+
+                connection.zRemRangeByScore(keyName, 0, expire); // Expire timeout record
+                connection.zAdd(keyName, score, value);
+            }
+            return null;
         });
     }
-
-    @Override
-    public void addRecords(String instanceId, List<StoreRecord> records) {
-        for (StoreRecord record : records) {
-            try {
-                String keyName = getKeyName(instanceId, record.getSchemeName());
-                String value = JsonUtils.toJsonString(record);
-                double score = record.getTimestamp();
-                template.boundZSetOps(keyName).add(value, score);
-
-            } catch (Throwable err) {
-                LOGGER.warn("Error in RedisRecordImporter#addRecords.", err);
-            }
-        }
-    }
-
 }

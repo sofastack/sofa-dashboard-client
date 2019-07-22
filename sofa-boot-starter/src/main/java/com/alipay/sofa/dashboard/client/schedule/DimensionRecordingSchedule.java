@@ -17,6 +17,7 @@
 package com.alipay.sofa.dashboard.client.schedule;
 
 import com.alipay.sofa.dashboard.client.dimension.ApplicationDimension;
+import com.alipay.sofa.dashboard.client.model.common.HostAndPort;
 import com.alipay.sofa.dashboard.client.model.io.StoreRecord;
 import com.alipay.sofa.dashboard.client.io.RecordImporter;
 import com.alipay.sofa.dashboard.client.utils.JsonUtils;
@@ -38,7 +39,7 @@ public class DimensionRecordingSchedule implements InitializingBean {
     private static final Logger              LOGGER = LoggerFactory
                                                         .getLogger(DimensionRecordingSchedule.class);
 
-    private final String                     instanceId;
+    private final HostAndPort                hostAndPort;
 
     private final List<ApplicationDimension> dimensions;
 
@@ -52,11 +53,11 @@ public class DimensionRecordingSchedule implements InitializingBean {
 
     private final Random                     random = new Random();
 
-    public DimensionRecordingSchedule(String instanceId,
+    public DimensionRecordingSchedule(HostAndPort hostAndPort,
                                       List<ApplicationDimension> dimensions,
                                       RecordImporter importer, long initDelayExp,
                                       long flushPeriodExp) {
-        this.instanceId = instanceId;
+        this.hostAndPort = hostAndPort;
         this.dimensions = dimensions;
         this.importer = importer;
         this.initDelayExp = initDelayExp;
@@ -72,7 +73,7 @@ public class DimensionRecordingSchedule implements InitializingBean {
     public void afterPropertiesSet() {
         Set<String> schemes = dimensions.stream().map(ApplicationDimension::getName)
             .collect(Collectors.toSet());
-        importer.createTablesIfNotExists(instanceId, schemes);
+        importer.createTablesIfNotExists(hostAndPort, schemes);
 
         int nextDelay = calculateNextScheduleTime(initDelayExp).intValue();
         if (LOGGER.isDebugEnabled()) {
@@ -116,7 +117,7 @@ public class DimensionRecordingSchedule implements InitializingBean {
                     record.setValue(JsonUtils.toJsonString(dimension.currentValue()));
                     records.add(record);
                 }
-                importer.addRecords(instanceId, records);
+                importer.addRecords(hostAndPort, records);
 
             } catch (Throwable err) {
                 LOGGER.warn("Unable to flush dimension record", err);

@@ -20,6 +20,7 @@ import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.model.common.RegistryConfig;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
@@ -61,5 +62,19 @@ public abstract class AppSubscriber<CFG extends RegistryConfig> {
      * @return application instance list
      */
     public abstract List<Application> getByName(String appName);
+
+    /**
+     * Get all application names
+     *
+     * @return application names list
+     */
+    public abstract List<String> getAllNames();
+
+    /**
+     * Count all instance group by service name
+     *
+     * @return count result
+     */
+    public abstract Map<String, Integer> summaryCounts();
 
 }
