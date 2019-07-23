@@ -17,6 +17,7 @@
 package com.alipay.sofa.dashboard.client.model.common;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Host and port definition
@@ -71,4 +72,23 @@ public class HostAndPort implements Comparable<HostAndPort>, Serializable {
         return hostSign + portSign;
     }
 
+    @Override
+    public String toString() {
+        return "HostAndPort{" + "host='" + host + '\'' + ", port=" + port + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        HostAndPort that = (HostAndPort) o;
+        return getPort() == that.getPort() && Objects.equals(getHost(), that.getHost());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getHost(), getPort());
+    }
 }
