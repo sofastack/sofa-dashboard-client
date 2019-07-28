@@ -36,13 +36,13 @@ public final class NetworkAddressUtils {
 
     private static final String  COMMA                = ",";
     private static final String  COLON                = ":";
+    private static final String  DEFAULT_HOST_NAME    = "app";
+    private static final String  LOCALHOST            = "127.0.0.1";
 
     private static List<IpRange> IP_RANGES            = null;
     private static String        NETWORK_ADDRESS;
     private static String        BIND_NETWORK_ADDRESS = null;
     private static String        HOST_NAME;
-
-    private static String        DEFAULT_HOST_NAME    = "app";
 
     /**
      * this method should be invoked fisrt
@@ -111,9 +111,9 @@ public final class NetworkAddressUtils {
                     }
                 }
             }
-            return "";
+            return LOCALHOST; // 使用回环IP兜底，防止网卡失效时导致的格式解析错误
         } catch (Exception e) {
-            return "";
+            return LOCALHOST;
         }
     }
 
