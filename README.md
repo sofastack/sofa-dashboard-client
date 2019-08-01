@@ -1,6 +1,6 @@
 ## SOFADashboard client
 
-[![Build Status](https://travis-ci.org/sofastack/sofa-dashboard-client.svg?branch=master)](https://travis-ci.com/sofastack/sofa-dashboard-client/builds/)
+[![Build Status](https://travis-ci.com/sofastack/sofa-dashboard-client.svg?branch=master)](https://travis-ci.com/sofastack/sofa-dashboard-client)
 [![Coverage Status](https://coveralls.io/repos/github/sofastack/sofa-dashboard-client/badge.svg?branch=master)](https://coveralls.io/github/sofastack/sofa-dashboard-client?branch=master)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
 [![Maven](https://img.shields.io/github/release/sofastack/sofa-dashboard-client.svg)](https://github.com/sofastack/sofa-dashboard-client/releases)
