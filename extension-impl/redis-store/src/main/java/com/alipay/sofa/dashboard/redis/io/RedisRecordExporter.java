@@ -48,7 +48,7 @@ public class RedisRecordExporter extends RedisStoreBase implements RecordExporte
         return Optional.ofNullable(records).orElse(new HashSet<>())
             .stream()
             .map(it -> JsonUtils.parseObject(it, StoreRecord.class))
-            .sorted((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()))
+            .sorted(Comparator.comparingLong(StoreRecord::getTimestamp))
             .collect(Collectors.toList());
     }
 }
