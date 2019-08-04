@@ -24,16 +24,23 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
 public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig> {
 
-    private final ZookeeperRegistryClient client;
-
     private static final Logger           LOGGER = LoggerFactory
                                                      .getLogger(ZookeeperAppPublisher.class);
+
+    private final ZookeeperRegistryClient client;
+
+    private final ReentrantLock           lock   = new ReentrantLock(true);
+
+    private volatile String               currentSession;
 
     public ZookeeperAppPublisher(ZookeeperRegistryConfig config, Application application) {
         super(application, config);
@@ -61,11 +68,25 @@ public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig>
     }
 
     @Override
-    public synchronized void register() throws Exception {
-        Application app = getApplication();
-        app.setLastRecover(System.currentTimeMillis()); // Change recover time
+    public void register() throws Exception {
+        lock.lock();
+        try {
+            Application app = getApplication();
+            app.setLastRecover(System.currentTimeMillis()); // Change recover time
 
-        if (client.isRunning()) {
+            if (!client.isRunning()) {
+                return;
+            }
+
+            if (!StringUtils.isEmpty(currentSession)) {
+                try {
+                    client.getCuratorClient().delete().forPath(currentSession);
+                    currentSession = null;
+                } catch (Exception e) {
+                    LOGGER.warn("Error while recycle old session node {}", currentSession, e);
+                }
+            }
+
             Stat stat = client.getCuratorClient().checkExists()
                 .forPath(ZookeeperConstants.SOFA_BOOT_CLIENT_ROOT);
             if (stat == null) {
@@ -75,18 +96,26 @@ public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig>
             }
             byte[] bytes = JsonUtils.toJsonBytes(app);
             String sessionNode = client.toSessionNode(app);
-            client.getCuratorClient().create().creatingParentContainersIfNeeded()
+            currentSession = client.getCuratorClient().create().creatingParentContainersIfNeeded()
                 .withMode(CreateMode.EPHEMERAL).forPath(sessionNode, bytes);
+
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public void unRegister() throws Exception {
-        Application app = getApplication();
+        lock.lock();
+        try {
+            Application app = getApplication();
 
-        if (client.isRunning()) {
-            String sessionNode = client.toSessionNode(app);
-            client.getCuratorClient().delete().forPath(sessionNode);
+            if (client.isRunning()) {
+                String sessionNode = client.toSessionNode(app);
+                client.getCuratorClient().delete().forPath(sessionNode);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
