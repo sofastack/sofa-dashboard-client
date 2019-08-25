@@ -47,9 +47,8 @@ public class SofaDashboardContextRefreshedListener implements
         AppPublisher<?> publisher = context.getBean(AppPublisher.class);
 
         try {
-            String status = readinessCheckListener.getHealthCheckerStatus()
-                            && readinessCheckListener.getHealthCallbackStatus() ? Status.UP
-                .toString() : Status.DOWN.toString();
+            String status = readinessCheckListener.getHealthCheckerStatus() ? Status.UP.toString()
+                : Status.DOWN.toString();
             publisher.getApplication().setAppState(status);
             publisher.register();
         } catch (Exception e) {
