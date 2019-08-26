@@ -16,16 +16,15 @@
  */
 package com.alipay.sofa.dashboard.client.registry;
 
+import com.alipay.sofa.dashboard.client.base.TestBase;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppSubscriber;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
-import org.apache.curator.test.TestingServer;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -33,29 +32,12 @@ import java.util.List;
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-public class ZookeeperRegistryBasicTest {
+public class ZookeeperRegistryBasicTest extends TestBase {
 
     private static final Logger           LOGGER = LoggerFactory
                                                      .getLogger(ZookeeperRegistryBasicTest.class);
 
     private final ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
-
-    private static TestingServer          testServer;
-
-    public ZookeeperRegistryBasicTest() {
-        config.setAddress("127.0.0.1:22181");
-    }
-
-    @BeforeClass
-    public static void setupZkServer() throws Exception {
-        testServer = new TestingServer(22181, true);
-        testServer.start();
-    }
-
-    @AfterClass
-    public static void recycleServer() throws IOException {
-        testServer.stop();
-    }
 
     @Before
     public void clearData() {
@@ -70,7 +52,7 @@ public class ZookeeperRegistryBasicTest {
             .port(8080).startTime(System.currentTimeMillis())
             .lastRecover(System.currentTimeMillis()).appState("UP").build();
 
-        AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app);
+        AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app, zookeeperRegistryClient);
         publisher.start();
         publisher.register();
 
@@ -96,11 +78,13 @@ public class ZookeeperRegistryBasicTest {
             .lastRecover(System.currentTimeMillis()).appState("UP").build();
 
         // Register two different applications
-        AppPublisher<?> publisher1 = new ZookeeperAppPublisher(config, app1);
+        AppPublisher<?> publisher1 = new ZookeeperAppPublisher(config, app1,
+            zookeeperRegistryClient);
         publisher1.start();
         publisher1.register();
 
-        AppPublisher<?> publisher2 = new ZookeeperAppPublisher(config, app2);
+        AppPublisher<?> publisher2 = new ZookeeperAppPublisher(config, app2,
+            zookeeperRegistryClient);
         publisher2.start();
         publisher2.register();
 
@@ -140,7 +124,8 @@ public class ZookeeperRegistryBasicTest {
                 .lastRecover(System.currentTimeMillis()).appState("UP").build();
             samples.add(app);
 
-            AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app);
+            AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app,
+                zookeeperRegistryClient);
             publisher.start();
             publisher.register();
             publishers.add(publisher);
