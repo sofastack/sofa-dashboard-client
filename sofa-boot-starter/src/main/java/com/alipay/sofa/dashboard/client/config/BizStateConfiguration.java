@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.dashboard.client.config;
 
+import com.alipay.sofa.ark.springboot2.endpoint.IntrospectBizEndpoint;
 import com.alipay.sofa.dashboard.client.listener.BizStateListener;
 import com.alipay.sofa.dashboard.client.properties.SofaDashboardClientProperties;
 import com.alipay.sofa.dashboard.client.properties.SofaDashboardZookeeperProperties;
@@ -43,6 +44,12 @@ public class BizStateConfiguration {
     @ConditionalOnMissingBean
     public BizStateListener bizStateListener(ZookeeperRegistryClient zookeeperRegistryClient,
                                              Environment env, SofaDashboardClientProperties prop) {
-        return new BizStateListener(zookeeperRegistryClient, prop, env);
+        return new BizStateListener(zookeeperRegistryClient, prop, env, introspectBizEndpoint());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IntrospectBizEndpoint introspectBizEndpoint() {
+        return new IntrospectBizEndpoint();
     }
 }

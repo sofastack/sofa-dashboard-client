@@ -28,7 +28,6 @@ import org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
@@ -47,15 +46,15 @@ public class BizStateListener {
 
     private final String                        appName;
 
-    @Autowired
     private IntrospectBizEndpoint               introspectBizEndpoint;
 
     public BizStateListener(ZookeeperRegistryClient zookeeperRegistryClient,
                             SofaDashboardClientProperties sofaDashboardClientProperties,
-                            Environment environment) {
+                            Environment environment, IntrospectBizEndpoint introspectBizEndpoint) {
         this.zookeeperRegistryClient = zookeeperRegistryClient;
         this.sofaDashboardClientProperties = sofaDashboardClientProperties;
         this.appName = environment.getProperty(Constants.APP_NAME_KEY);
+        this.introspectBizEndpoint = introspectBizEndpoint;
     }
 
     /**
@@ -80,7 +79,6 @@ public class BizStateListener {
     }
 
     private void addListener(final NodeCache cache,final String bizPath) throws Exception {
-        System.out.println("当前节点：" + cache.getCurrentData());
         NodeCacheListener listener = ()-> {
             if (introspectBizEndpoint.bizState() instanceof ClientResponse){
                 ClientResponse clientResponse = (ClientResponse) introspectBizEndpoint.bizState();
@@ -88,7 +86,6 @@ public class BizStateListener {
                 zookeeperRegistryClient.getCuratorClient().setData().forPath(bizPath,bytes);
             }
         };
-        System.out.println("变更之后：" + cache.getCurrentData());
         cache.getListenable().addListener(listener);
         cache.start();
     }

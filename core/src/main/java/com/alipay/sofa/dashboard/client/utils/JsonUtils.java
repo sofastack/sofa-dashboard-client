@@ -16,13 +16,13 @@
  */
 package com.alipay.sofa.dashboard.client.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
-import com.alibaba.fastjson.JSON;
 
 import java.io.IOException;
 import java.util.List;
@@ -172,6 +172,7 @@ public final class JsonUtils {
             if (bytes == null) {
                 return null;
             }
+
             return JSON.parseObject(bytes, valueType);
         } catch (Exception e) {
             LOGGER.error("Error to convert object from data bytes.", e);
