@@ -19,10 +19,12 @@ package com.alipay.sofa.dashboard.client.registry;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppSubscriber;
+import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryClient;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
 import org.apache.curator.test.TestingServer;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -37,6 +39,9 @@ public class ZookeeperRegistryRecoverTest {
         config.setAddress("127.0.0.1:22181");
     }
 
+    @Autowired
+    private ZookeeperRegistryClient zookeeperRegistryClient;
+
     @Test
     public void subscriberCacheTest() throws Exception {
         final Application app = Application.newBuilder().appName("test_app1").hostName("127.0.0.1")
@@ -46,7 +51,7 @@ public class ZookeeperRegistryRecoverTest {
         TestingServer testServer = new TestingServer(22181, true);
         testServer.start();
 
-        AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app);
+        AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app, zookeeperRegistryClient);
         publisher.start();
         publisher.register();
 
@@ -78,11 +83,13 @@ public class ZookeeperRegistryRecoverTest {
         testServer.start();
 
         // Publish app1
-        AppPublisher<?> publisher1 = new ZookeeperAppPublisher(config, app1);
+        AppPublisher<?> publisher1 = new ZookeeperAppPublisher(config, app1,
+            zookeeperRegistryClient);
         publisher1.start();
         publisher1.register();
 
-        AppPublisher<?> publisher2 = new ZookeeperAppPublisher(config, app2);
+        AppPublisher<?> publisher2 = new ZookeeperAppPublisher(config, app2,
+            zookeeperRegistryClient);
         publisher2.start();
 
         // Create a subscriber after register

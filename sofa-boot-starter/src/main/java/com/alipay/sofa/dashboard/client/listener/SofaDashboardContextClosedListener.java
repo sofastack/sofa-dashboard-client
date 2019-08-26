@@ -19,10 +19,8 @@ package com.alipay.sofa.dashboard.client.listener;
 import com.alipay.sofa.dashboard.client.registry.AppPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.stereotype.Component;
 
 /**
  * 监听 ContextClosedEvent 事件，执行应用信息注销操作
@@ -30,7 +28,6 @@ import org.springframework.stereotype.Component;
  *
  * @author guolei.sgl (guolei.sgl@antfin.com) 2019/4/11 6:53 PM
  **/
-@Component
 public class SofaDashboardContextClosedListener implements ApplicationListener<ContextClosedEvent> {
 
     private static final Logger LOGGER = LoggerFactory

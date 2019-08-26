@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-final class ZookeeperRegistryClient {
+public class ZookeeperRegistryClient {
 
     private static final Logger    LOGGER              = LoggerFactory
                                                            .getLogger(ZookeeperRegistryClient.class);
@@ -53,7 +53,7 @@ final class ZookeeperRegistryClient {
 
     private final CuratorFramework curatorClient;
 
-    ZookeeperRegistryClient(ZookeeperRegistryConfig config) {
+    public ZookeeperRegistryClient(ZookeeperRegistryConfig config) {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(config.getBaseSleepTimeMs(),
             config.getMaxRetries());
         // to build curatorClient
@@ -66,7 +66,7 @@ final class ZookeeperRegistryClient {
         return start.get() && !shutdown.get();
     }
 
-    CuratorFramework getCuratorClient() {
+    public CuratorFramework getCuratorClient() {
         return curatorClient;
     }
 

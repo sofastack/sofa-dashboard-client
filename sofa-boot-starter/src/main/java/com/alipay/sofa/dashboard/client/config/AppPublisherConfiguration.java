@@ -21,6 +21,7 @@ import com.alipay.sofa.dashboard.client.properties.SofaDashboardClientProperties
 import com.alipay.sofa.dashboard.client.properties.SofaDashboardZookeeperProperties;
 import com.alipay.sofa.dashboard.client.registry.AppPublisher;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
+import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryClient;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
 import com.alipay.sofa.dashboard.client.utils.NetworkAddressUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -66,21 +67,33 @@ public class AppPublisherConfiguration {
     @ConditionalOnMissingBean
     public AppPublisher getAppPublisher(SofaDashboardZookeeperProperties prop,
                                         Application application) {
-        ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
-        config.setAddress(prop.getAddress());
-        config.setBaseSleepTimeMs(prop.getBaseSleepTimeMs());
-        config.setMaxRetries(prop.getMaxRetries());
-        config.setSessionTimeoutMs(prop.getSessionTimeoutMs());
-        config.setConnectionTimeoutMs(prop.getConnectionTimeoutMs());
-
-        ZookeeperAppPublisher registry = new ZookeeperAppPublisher(config, application);
+        ZookeeperRegistryConfig config = getZookeeperRegistryConfig(prop);
+        ZookeeperAppPublisher registry = new ZookeeperAppPublisher(config, application,
+            zookeeperRegistryClient(prop));
         registry.start();
         return registry;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ZookeeperRegistryClient zookeeperRegistryClient(SofaDashboardZookeeperProperties prop) {
+        ZookeeperRegistryConfig config = getZookeeperRegistryConfig(prop);
+        return new ZookeeperRegistryClient(config);
     }
 
     private String getLocalIp(SofaDashboardClientProperties properties) {
         NetworkAddressUtils.calculate(null, null);
         return StringUtils.isEmpty(properties.getInstanceIp()) ? NetworkAddressUtils.getLocalIP()
             : properties.getInstanceIp();
+    }
+
+    private ZookeeperRegistryConfig getZookeeperRegistryConfig(SofaDashboardZookeeperProperties prop) {
+        ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
+        config.setAddress(prop.getAddress());
+        config.setBaseSleepTimeMs(prop.getBaseSleepTimeMs());
+        config.setMaxRetries(prop.getMaxRetries());
+        config.setSessionTimeoutMs(prop.getSessionTimeoutMs());
+        config.setConnectionTimeoutMs(prop.getConnectionTimeoutMs());
+        return config;
     }
 }

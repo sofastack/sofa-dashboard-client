@@ -42,9 +42,10 @@ public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig>
 
     private volatile String               currentSession;
 
-    public ZookeeperAppPublisher(ZookeeperRegistryConfig config, Application application) {
+    public ZookeeperAppPublisher(ZookeeperRegistryConfig config, Application application,
+                                 ZookeeperRegistryClient client) {
         super(application, config);
-        this.client = new ZookeeperRegistryClient(config);
+        this.client = client;
     }
 
     @Override

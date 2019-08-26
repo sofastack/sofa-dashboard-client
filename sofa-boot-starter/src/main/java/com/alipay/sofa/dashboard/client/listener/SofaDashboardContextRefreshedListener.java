@@ -24,7 +24,6 @@ import org.springframework.boot.actuate.health.Status;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.stereotype.Component;
 
 /**
  * By listening to the ContextRefreshedEvent listener, after the application is fully started,
@@ -32,7 +31,6 @@ import org.springframework.stereotype.Component;
  *
  * @author guolei.sgl (guolei.sgl@antfin.com) 2019/2/19 2:17 PM
  **/
-@Component
 public class SofaDashboardContextRefreshedListener implements
                                                   ApplicationListener<ContextRefreshedEvent> {
 
@@ -51,6 +49,10 @@ public class SofaDashboardContextRefreshedListener implements
                 : Status.DOWN.toString();
             publisher.getApplication().setAppState(status);
             publisher.register();
+
+            // 启动 biz 状态监听
+            BizStateListener bizStateListener = context.getBean(BizStateListener.class);
+            bizStateListener.start();
         } catch (Exception e) {
             LOGGER.info("sofa dashboard client register failed.", e);
         }
