@@ -34,6 +34,10 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
         <!-- Test Dependency -->
         <dependency>
             <groupId>junit</groupId>

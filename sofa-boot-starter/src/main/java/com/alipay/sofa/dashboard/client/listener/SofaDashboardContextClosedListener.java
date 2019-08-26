@@ -19,7 +19,6 @@ package com.alipay.sofa.dashboard.client.listener;
 import com.alipay.sofa.dashboard.client.registry.AppPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;

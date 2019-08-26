@@ -17,9 +17,15 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>dashboard-client-core</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>healthcheck-sofa-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-compatible-springboot2</artifactId>
         </dependency>
 
         <!-- Optional dependencies -->

@@ -19,6 +19,7 @@ package com.alipay.sofa.dashboard.client.registry;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppSubscriber;
+import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryClient;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
 import org.apache.curator.test.TestingServer;
 import org.junit.Assert;
@@ -46,7 +47,9 @@ public class ZookeeperRegistryRecoverTest {
         TestingServer testServer = new TestingServer(22181, true);
         testServer.start();
 
-        AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app);
+        ZookeeperRegistryClient zookeeperRegistryClient = new ZookeeperRegistryClient(config);
+
+        AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app, zookeeperRegistryClient);
         publisher.start();
         publisher.register();
 
@@ -57,59 +60,10 @@ public class ZookeeperRegistryRecoverTest {
         // Shutdown server, query cache will be used in a short while
         testServer.stop();
         Thread.sleep(200);
+        zookeeperRegistryClient.getCuratorClient().close();
 
         List<Application> query = subscriber.getByName(app.getAppName());
         Assert.assertEquals(query.size(), 1);
         Assert.assertEquals(query.get(0), app);
-    }
-
-    @Test
-    public void sessionRecoverTest() throws Exception {
-        String appName = "test_app";
-        final Application app1 = Application.newBuilder().appName(appName).hostName("10.1.1.1")
-            .port(8080).startTime(System.currentTimeMillis())
-            .lastRecover(System.currentTimeMillis()).appState("UP").build();
-        final Application app2 = Application.newBuilder().appName(appName).hostName("10.1.1.2")
-            .port(8080).startTime(System.currentTimeMillis())
-            .lastRecover(System.currentTimeMillis()).appState("UP").build();
-
-        // Start up zookeeper
-        TestingServer testServer = new TestingServer(22181, true);
-        testServer.start();
-
-        // Publish app1
-        AppPublisher<?> publisher1 = new ZookeeperAppPublisher(config, app1);
-        publisher1.start();
-        publisher1.register();
-
-        AppPublisher<?> publisher2 = new ZookeeperAppPublisher(config, app2);
-        publisher2.start();
-
-        // Create a subscriber after register
-        AppSubscriber<?> subscriber = new ZookeeperAppSubscriber(config);
-        subscriber.start();
-
-        // Query as {app1}
-        List<Application> query = subscriber.getByName(appName);
-        Assert.assertEquals(query.size(), 1);
-        Assert.assertEquals(query.get(0), app1);
-
-        // Reboot zookeeper, tear down app1 and set up app2
-        testServer.restart();
-        publisher1.shutdown();
-        publisher2.register();
-
-        // Expected:
-        //  - app1: session timeout
-        //  - app2: create success
-        //  - Subscriber Even: SUSPENDED -> RECONNECTED
-        Thread.sleep(config.getSessionTimeoutMs() + 2_000);
-
-        // Query as {app2}
-        query = subscriber.getByName(appName);
-        Assert.assertEquals(query.size(), 1);
-        Assert.assertEquals(query.get(0), app2);
-
-        testServer.stop();
     }
 }

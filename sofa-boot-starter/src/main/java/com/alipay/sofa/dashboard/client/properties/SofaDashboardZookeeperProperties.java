@@ -17,7 +17,6 @@
 package com.alipay.sofa.dashboard.client.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 @ConfigurationProperties(prefix = "com.alipay.sofa.dashboard.zookeeper")
 public class SofaDashboardZookeeperProperties {

@@ -19,6 +19,7 @@ package com.alipay.sofa.dashboard.client.registry;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppSubscriber;
+import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryClient;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
 import org.apache.curator.test.TestingServer;
 import org.junit.*;
@@ -46,15 +47,19 @@ public class ZookeeperRegistryBasicTest {
         config.setAddress("127.0.0.1:22181");
     }
 
-    @BeforeClass
-    public static void setupZkServer() throws Exception {
+    private ZookeeperRegistryClient zookeeperRegistryClient;
+
+    @Before
+    public void setupZkServer() throws Exception {
         testServer = new TestingServer(22181, true);
         testServer.start();
+        zookeeperRegistryClient = new ZookeeperRegistryClient(config);
     }
 
-    @AfterClass
-    public static void recycleServer() throws IOException {
+    @After
+    public void recycleServer() throws IOException {
         testServer.stop();
+        zookeeperRegistryClient.getCuratorClient().close();
     }
 
     @Before
@@ -70,7 +75,7 @@ public class ZookeeperRegistryBasicTest {
             .port(8080).startTime(System.currentTimeMillis())
             .lastRecover(System.currentTimeMillis()).appState("UP").build();
 
-        AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app);
+        AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app, zookeeperRegistryClient);
         publisher.start();
         publisher.register();
 
@@ -96,11 +101,13 @@ public class ZookeeperRegistryBasicTest {
             .lastRecover(System.currentTimeMillis()).appState("UP").build();
 
         // Register two different applications
-        AppPublisher<?> publisher1 = new ZookeeperAppPublisher(config, app1);
+        AppPublisher<?> publisher1 = new ZookeeperAppPublisher(config, app1,
+            zookeeperRegistryClient);
         publisher1.start();
         publisher1.register();
 
-        AppPublisher<?> publisher2 = new ZookeeperAppPublisher(config, app2);
+        AppPublisher<?> publisher2 = new ZookeeperAppPublisher(config, app2,
+            zookeeperRegistryClient);
         publisher2.start();
         publisher2.register();
 
@@ -140,7 +147,8 @@ public class ZookeeperRegistryBasicTest {
                 .lastRecover(System.currentTimeMillis()).appState("UP").build();
             samples.add(app);
 
-            AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app);
+            AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app,
+                zookeeperRegistryClient);
             publisher.start();
             publisher.register();
             publishers.add(publisher);

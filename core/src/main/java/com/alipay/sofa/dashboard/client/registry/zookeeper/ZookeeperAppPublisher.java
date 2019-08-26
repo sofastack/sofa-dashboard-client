@@ -36,20 +36,21 @@ public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig>
     private static final Logger           LOGGER = LoggerFactory
                                                      .getLogger(ZookeeperAppPublisher.class);
 
-    private final ZookeeperRegistryClient client;
+    private final ZookeeperRegistryClient zookeeperRegistryClient;
 
     private final ReentrantLock           lock   = new ReentrantLock(true);
 
     private volatile String               currentSession;
 
-    public ZookeeperAppPublisher(ZookeeperRegistryConfig config, Application application) {
+    public ZookeeperAppPublisher(ZookeeperRegistryConfig config, Application application,
+                                 ZookeeperRegistryClient zookeeperRegistryClient) {
         super(application, config);
-        this.client = new ZookeeperRegistryClient(config);
+        this.zookeeperRegistryClient = zookeeperRegistryClient;
     }
 
     @Override
     public boolean start() {
-        return client.doStart((curatorFramework) ->
+        return zookeeperRegistryClient.doStart((curatorFramework) ->
             curatorFramework.getConnectionStateListenable().addListener((cli, newState) -> {
                 if (newState == ConnectionState.RECONNECTED) {
                     LOGGER.info("Try to recover session node while reconnected");
@@ -64,7 +65,7 @@ public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig>
 
     @Override
     public void shutdown() {
-        client.doShutdown();
+        zookeeperRegistryClient.doShutdown();
     }
 
     @Override
@@ -74,30 +75,31 @@ public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig>
             Application app = getApplication();
             app.setLastRecover(System.currentTimeMillis()); // Change recover time
 
-            if (!client.isRunning()) {
+            if (!zookeeperRegistryClient.isRunning()) {
                 return;
             }
 
             if (!StringUtils.isEmpty(currentSession)) {
                 try {
-                    client.getCuratorClient().delete().forPath(currentSession);
+                    zookeeperRegistryClient.getCuratorClient().delete().forPath(currentSession);
                     currentSession = null;
                 } catch (Exception e) {
                     LOGGER.warn("Error while recycle old session node {}", currentSession, e);
                 }
             }
 
-            Stat stat = client.getCuratorClient().checkExists()
+            Stat stat = zookeeperRegistryClient.getCuratorClient().checkExists()
                 .forPath(ZookeeperConstants.SOFA_BOOT_CLIENT_ROOT);
             if (stat == null) {
-                client.getCuratorClient().create().creatingParentContainersIfNeeded()
-                    .withMode(CreateMode.PERSISTENT)
+                zookeeperRegistryClient.getCuratorClient().create()
+                    .creatingParentContainersIfNeeded().withMode(CreateMode.PERSISTENT)
                     .forPath(ZookeeperConstants.SOFA_BOOT_CLIENT_ROOT);
             }
             byte[] bytes = JsonUtils.toJsonBytes(app);
-            String sessionNode = client.toSessionNode(app);
-            currentSession = client.getCuratorClient().create().creatingParentContainersIfNeeded()
-                .withMode(CreateMode.EPHEMERAL).forPath(sessionNode, bytes);
+            String sessionNode = zookeeperRegistryClient.toSessionNode(app);
+            currentSession = zookeeperRegistryClient.getCuratorClient().create()
+                .creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL)
+                .forPath(sessionNode, bytes);
 
         } finally {
             lock.unlock();
@@ -110,9 +112,9 @@ public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig>
         try {
             Application app = getApplication();
 
-            if (client.isRunning()) {
-                String sessionNode = client.toSessionNode(app);
-                client.getCuratorClient().delete().forPath(sessionNode);
+            if (zookeeperRegistryClient.isRunning()) {
+                String sessionNode = zookeeperRegistryClient.toSessionNode(app);
+                zookeeperRegistryClient.getCuratorClient().delete().forPath(sessionNode);
             }
         } finally {
             lock.unlock();
