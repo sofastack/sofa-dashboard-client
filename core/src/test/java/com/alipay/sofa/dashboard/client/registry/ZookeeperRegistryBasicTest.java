@@ -79,7 +79,7 @@ public class ZookeeperRegistryBasicTest extends TestBase {
 
         // Register two different applications
         AppPublisher<?> publisher1 = new ZookeeperAppPublisher(config, app1,
-                zookeeperRegistryClient);
+            zookeeperRegistryClient);
         publisher1.start();
         publisher1.register();
 
