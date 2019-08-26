@@ -16,18 +16,15 @@
  */
 package com.alipay.sofa.dashboard.client.registry;
 
+import com.alipay.sofa.dashboard.client.base.TestBase;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppSubscriber;
-import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryClient;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
-import org.apache.curator.test.TestingServer;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -35,32 +32,12 @@ import java.util.List;
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-public class ZookeeperRegistryBasicTest {
+public class ZookeeperRegistryBasicTest extends TestBase {
 
     private static final Logger           LOGGER = LoggerFactory
                                                      .getLogger(ZookeeperRegistryBasicTest.class);
 
     private final ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
-
-    private static TestingServer          testServer;
-
-    @Autowired
-    private ZookeeperRegistryClient       zookeeperRegistryClient;
-
-    public ZookeeperRegistryBasicTest() {
-        config.setAddress("127.0.0.1:22181");
-    }
-
-    @BeforeClass
-    public static void setupZkServer() throws Exception {
-        testServer = new TestingServer(22181, true);
-        testServer.start();
-    }
-
-    @AfterClass
-    public static void recycleServer() throws IOException {
-        testServer.stop();
-    }
 
     @Before
     public void clearData() {
