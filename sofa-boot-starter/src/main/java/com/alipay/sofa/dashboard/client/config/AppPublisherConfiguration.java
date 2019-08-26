@@ -81,6 +81,12 @@ public class AppPublisherConfiguration {
         return new ZookeeperRegistryClient(config);
     }
 
+    private String getLocalIp(SofaDashboardClientProperties properties) {
+        NetworkAddressUtils.calculate(null, null);
+        return StringUtils.isEmpty(properties.getInstanceIp()) ? NetworkAddressUtils.getLocalIP()
+            : properties.getInstanceIp();
+    }
+
     private ZookeeperRegistryConfig getZookeeperRegistryConfig(SofaDashboardZookeeperProperties prop) {
         ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
         config.setAddress(prop.getAddress());
@@ -89,11 +95,5 @@ public class AppPublisherConfiguration {
         config.setSessionTimeoutMs(prop.getSessionTimeoutMs());
         config.setConnectionTimeoutMs(prop.getConnectionTimeoutMs());
         return config;
-    }
-
-    private String getLocalIp(SofaDashboardClientProperties properties) {
-        NetworkAddressUtils.calculate(null, null);
-        return StringUtils.isEmpty(properties.getInstanceIp()) ? NetworkAddressUtils.getLocalIP()
-            : properties.getInstanceIp();
     }
 }

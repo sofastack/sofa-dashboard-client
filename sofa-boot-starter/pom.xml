@@ -35,6 +35,29 @@
             <optional>true</optional>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-compatible-springboot2</artifactId>
+            <version>0.6.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>sofa-ark-spi</artifactId>
+                    <groupId>com.alipay.sofa</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log-sofa-boot-starter</artifactId>
+                    <groupId>com.alipay.sofa.common</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <artifactId>sofa-ark-spi</artifactId>
+            <groupId>com.alipay.sofa</groupId>
+            <version>0.6.0</version>
+        </dependency>
+
         <!-- Test Dependency -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

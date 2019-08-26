@@ -16,12 +16,11 @@
  */
 package com.alipay.sofa.dashboard.client.registry;
 
+import com.alipay.sofa.dashboard.client.base.TestBase;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppSubscriber;
-import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryClient;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
-import org.apache.curator.test.TestingServer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,24 +29,15 @@ import java.util.List;
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-public class ZookeeperRegistryRecoverTest {
+public class ZookeeperRegistryRecoverTest extends TestBase {
 
     private final ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
-
-    public ZookeeperRegistryRecoverTest() {
-        config.setAddress("127.0.0.1:22181");
-    }
 
     @Test
     public void subscriberCacheTest() throws Exception {
         final Application app = Application.newBuilder().appName("test_app1").hostName("127.0.0.1")
             .port(8080).startTime(System.currentTimeMillis())
             .lastRecover(System.currentTimeMillis()).appState("UP").build();
-
-        TestingServer testServer = new TestingServer(22181, true);
-        testServer.start();
-
-        ZookeeperRegistryClient zookeeperRegistryClient = new ZookeeperRegistryClient(config);
 
         AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app, zookeeperRegistryClient);
         publisher.start();
@@ -56,11 +46,6 @@ public class ZookeeperRegistryRecoverTest {
         // Create a subscriber after register
         AppSubscriber<?> subscriber = new ZookeeperAppSubscriber(config);
         subscriber.start();
-
-        // Shutdown server, query cache will be used in a short while
-        testServer.stop();
-        Thread.sleep(200);
-        zookeeperRegistryClient.getCuratorClient().close();
 
         List<Application> query = subscriber.getByName(app.getAppName());
         Assert.assertEquals(query.size(), 1);

@@ -16,17 +16,15 @@
  */
 package com.alipay.sofa.dashboard.client.registry;
 
+import com.alipay.sofa.dashboard.client.base.TestBase;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppSubscriber;
-import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryClient;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
-import org.apache.curator.test.TestingServer;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -34,33 +32,12 @@ import java.util.List;
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-public class ZookeeperRegistryBasicTest {
+public class ZookeeperRegistryBasicTest extends TestBase {
 
     private static final Logger           LOGGER = LoggerFactory
                                                      .getLogger(ZookeeperRegistryBasicTest.class);
 
     private final ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
-
-    private static TestingServer          testServer;
-
-    public ZookeeperRegistryBasicTest() {
-        config.setAddress("127.0.0.1:22181");
-    }
-
-    private ZookeeperRegistryClient zookeeperRegistryClient;
-
-    @Before
-    public void setupZkServer() throws Exception {
-        testServer = new TestingServer(22181, true);
-        testServer.start();
-        zookeeperRegistryClient = new ZookeeperRegistryClient(config);
-    }
-
-    @After
-    public void recycleServer() throws IOException {
-        testServer.stop();
-        zookeeperRegistryClient.getCuratorClient().close();
-    }
 
     @Before
     public void clearData() {
@@ -102,7 +79,7 @@ public class ZookeeperRegistryBasicTest {
 
         // Register two different applications
         AppPublisher<?> publisher1 = new ZookeeperAppPublisher(config, app1,
-            zookeeperRegistryClient);
+                zookeeperRegistryClient);
         publisher1.start();
         publisher1.register();
 

@@ -16,9 +16,37 @@
  */
 package com.alipay.sofa.dashboard.client.base;
 
+import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryClient;
+import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
+import org.apache.curator.test.TestingServer;
+import org.junit.After;
+import org.junit.Before;
+
+import java.io.IOException;
+
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/26 8:34 PM
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/26 4:48 PM
  * @since:
  **/
 public abstract class TestBase {
+
+    protected static ZookeeperRegistryClient zookeeperRegistryClient;
+
+    protected static TestingServer           testServer;
+
+    @Before
+    public void setupZkServer() throws Exception {
+        testServer = new TestingServer(2181, true);
+        testServer.start();
+
+        ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
+        config.setAddress("127.0.0.1:2181");
+        zookeeperRegistryClient = new ZookeeperRegistryClient(config);
+    }
+
+    @After
+    public void recycleServer() throws IOException {
+        zookeeperRegistryClient.getCuratorClient().close();
+        testServer.stop();
+    }
 }
