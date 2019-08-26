@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.dashboard.client.listener;
 
-import com.alipay.sofa.ark.api.ClientResponse;
 import com.alipay.sofa.ark.springboot2.endpoint.IntrospectBizEndpoint;
 import com.alipay.sofa.dashboard.client.registry.AppPublisher;
 import com.alipay.sofa.healthcheck.startup.ReadinessCheckListener;
