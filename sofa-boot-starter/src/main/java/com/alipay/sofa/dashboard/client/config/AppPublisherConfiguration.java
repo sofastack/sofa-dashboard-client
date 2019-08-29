@@ -16,14 +16,17 @@
  */
 package com.alipay.sofa.dashboard.client.config;
 
+import com.alipay.sofa.ark.springboot2.endpoint.IntrospectBizEndpoint;
+import com.alipay.sofa.dashboard.client.ark.ArkBizLifecycleHandler;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.properties.SofaDashboardClientProperties;
 import com.alipay.sofa.dashboard.client.properties.SofaDashboardZookeeperProperties;
 import com.alipay.sofa.dashboard.client.registry.AppPublisher;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
-import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryClient;
-import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
 import com.alipay.sofa.dashboard.client.utils.NetworkAddressUtils;
+import com.alipay.sofa.dashboard.client.zookeeper.LifecycleHandler;
+import com.alipay.sofa.dashboard.client.zookeeper.ZookeeperClient;
+import com.alipay.sofa.dashboard.client.zookeeper.ZookeeperConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -31,7 +34,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
@@ -63,37 +69,52 @@ public class AppPublisherConfiguration {
         return app;
     }
 
-    @Bean(destroyMethod = "shutdown")
+    @Bean
     @ConditionalOnMissingBean
-    public AppPublisher getAppPublisher(SofaDashboardZookeeperProperties prop,
-                                        Application application) {
-        ZookeeperRegistryConfig config = getZookeeperRegistryConfig(prop);
-        ZookeeperAppPublisher registry = new ZookeeperAppPublisher(config, application,
-            zookeeperRegistryClient(prop));
-        registry.start();
-        return registry;
+    public IntrospectBizEndpoint introspectBizEndpoint() {
+        return new IntrospectBizEndpoint();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ZookeeperRegistryClient zookeeperRegistryClient(SofaDashboardZookeeperProperties prop) {
-        ZookeeperRegistryConfig config = getZookeeperRegistryConfig(prop);
-        return new ZookeeperRegistryClient(config);
+    public ArkBizLifecycleHandler bizStateListener(IntrospectBizEndpoint endpoint,
+                                                   Application application) {
+        return new ArkBizLifecycleHandler(endpoint, application);
     }
 
-    private String getLocalIp(SofaDashboardClientProperties properties) {
-        NetworkAddressUtils.calculate(null, null);
-        return StringUtils.isEmpty(properties.getInstanceIp()) ? NetworkAddressUtils.getLocalIP()
-            : properties.getInstanceIp();
-    }
-
-    private ZookeeperRegistryConfig getZookeeperRegistryConfig(SofaDashboardZookeeperProperties prop) {
-        ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
+    @Bean
+    @ConditionalOnMissingBean
+    public ZookeeperConfig getZookeeperRegistryConfig(SofaDashboardZookeeperProperties prop) {
+        ZookeeperConfig config = new ZookeeperConfig();
         config.setAddress(prop.getAddress());
         config.setBaseSleepTimeMs(prop.getBaseSleepTimeMs());
         config.setMaxRetries(prop.getMaxRetries());
         config.setSessionTimeoutMs(prop.getSessionTimeoutMs());
         config.setConnectionTimeoutMs(prop.getConnectionTimeoutMs());
         return config;
+    }
+
+    @Bean(destroyMethod = "shutdown")
+    @ConditionalOnMissingBean
+    public ZookeeperClient zookeeperRegistryClient(SofaDashboardZookeeperProperties prop,
+                                                   List<LifecycleHandler> provider) {
+        ZookeeperConfig config = getZookeeperRegistryConfig(prop);
+        ZookeeperClient client = new ZookeeperClient(config);
+        if (!CollectionUtils.isEmpty(provider)) {
+            provider.forEach(client::addLifecycleHandler);
+        }
+        return client;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public AppPublisher getAppPublisher(Application application, ZookeeperClient client) {
+        return new ZookeeperAppPublisher(application, client);
+    }
+
+    private String getLocalIp(SofaDashboardClientProperties properties) {
+        NetworkAddressUtils.calculate(null, null);
+        return StringUtils.isEmpty(properties.getInstanceIp()) ? NetworkAddressUtils.getLocalIP()
+            : properties.getInstanceIp();
     }
 }

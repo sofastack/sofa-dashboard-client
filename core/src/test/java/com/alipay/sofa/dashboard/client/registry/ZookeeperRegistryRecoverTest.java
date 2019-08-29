@@ -20,7 +20,7 @@ import com.alipay.sofa.dashboard.client.base.TestBase;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppSubscriber;
-import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
+import com.alipay.sofa.dashboard.client.zookeeper.ZookeeperConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,20 +31,18 @@ import java.util.List;
  */
 public class ZookeeperRegistryRecoverTest extends TestBase {
 
-    private final ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
-
     @Test
     public void subscriberCacheTest() throws Exception {
         final Application app = Application.newBuilder().appName("test_app1").hostName("127.0.0.1")
             .port(8080).startTime(System.currentTimeMillis())
             .lastRecover(System.currentTimeMillis()).appState("UP").build();
 
-        AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app, zookeeperRegistryClient);
+        AppPublisher publisher = newPublisher(app);
         publisher.start();
         publisher.register();
 
         // Create a subscriber after register
-        AppSubscriber<?> subscriber = new ZookeeperAppSubscriber(config);
+        AppSubscriber subscriber = newSubscriber();
         subscriber.start();
 
         List<Application> query = subscriber.getByName(app.getAppName());

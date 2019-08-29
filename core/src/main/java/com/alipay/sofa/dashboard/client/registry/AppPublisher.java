@@ -17,53 +17,49 @@
 package com.alipay.sofa.dashboard.client.registry;
 
 import com.alipay.sofa.dashboard.client.model.common.Application;
-import com.alipay.sofa.dashboard.client.model.common.RegistryConfig;
 
 /**
  * Application instance registry.
  *
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-public abstract class AppPublisher<CFG extends RegistryConfig> {
+public interface AppPublisher {
 
-    private final Application application;
-
-    private final CFG         config;
-
-    protected AppPublisher(Application application, CFG config) {
-        this.application = application;
-        this.config = config;
-    }
-
-    public Application getApplication() {
-        return application;
-    }
-
-    public CFG getConfig() {
-        return config;
-    }
+    /**
+     * Get Application instance definition
+     *
+     * @return application instance
+     */
+    Application getApplication();
 
     /**
      * Startup registry.
      *
      * @return {@code false}, if it is already started
+     * @throws Exception unexpected error
      */
-    public abstract boolean start() throws Exception;
+    boolean start() throws Exception;
 
     /**
      * Shutdown registry.
+     *
+     * @throws Exception unexpected error
      */
-    public abstract void shutdown() throws Exception;
+    void shutdown() throws Exception;
 
     /**
      * Publish instance onto registry central.
      * It should be called after started
+     *
+     * @throws Exception unexpected error
      */
-    public abstract void register() throws Exception;
+    void register() throws Exception;
 
     /**
      * Remove instance from registry central.
+     *
+     * @throws Exception unexpected error
      */
-    public abstract void unRegister() throws Exception;
+    void unRegister() throws Exception;
 
 }

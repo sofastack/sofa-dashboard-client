@@ -19,6 +19,9 @@ package com.alipay.sofa.dashboard.client.registry.zookeeper;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.registry.AppPublisher;
 import com.alipay.sofa.dashboard.client.utils.JsonUtils;
+import com.alipay.sofa.dashboard.client.zookeeper.LifecycleHandler;
+import com.alipay.sofa.dashboard.client.zookeeper.ZookeeperClient;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
@@ -31,41 +34,37 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig> {
+public class ZookeeperAppPublisher implements AppPublisher {
 
-    private static final Logger           LOGGER = LoggerFactory
-                                                     .getLogger(ZookeeperAppPublisher.class);
+    private static final Logger   LOGGER = LoggerFactory.getLogger(ZookeeperAppPublisher.class);
 
-    private final ZookeeperRegistryClient zookeeperRegistryClient;
+    private final ZookeeperClient client;
 
-    private final ReentrantLock           lock   = new ReentrantLock(true);
+    private final Application     application;
 
-    private volatile String               currentSession;
+    private final ReentrantLock   lock   = new ReentrantLock(true);
 
-    public ZookeeperAppPublisher(ZookeeperRegistryConfig config, Application application,
-                                 ZookeeperRegistryClient zookeeperRegistryClient) {
-        super(application, config);
-        this.zookeeperRegistryClient = zookeeperRegistryClient;
+    private volatile String       currentSession;
+
+    public ZookeeperAppPublisher(Application application, ZookeeperClient client) {
+        this.application = application;
+        this.client = client;
+    }
+
+    @Override
+    public Application getApplication() {
+        return application;
     }
 
     @Override
     public boolean start() {
-        return zookeeperRegistryClient.doStart((curatorFramework) ->
-            curatorFramework.getConnectionStateListenable().addListener((cli, newState) -> {
-                if (newState == ConnectionState.RECONNECTED) {
-                    LOGGER.info("Try to recover session node while reconnected");
-                    try {
-                        register();
-                    } catch (Exception e) {
-                        LOGGER.error("Recover session error", e);
-                    }
-                }
-            }));
+        client.addLifecycleHandler(new AppPublisherLifecycleHandler());
+        return client.start();
     }
 
     @Override
     public void shutdown() {
-        zookeeperRegistryClient.doShutdown();
+        client.shutdown();
     }
 
     @Override
@@ -73,33 +72,32 @@ public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig>
         lock.lock();
         try {
             Application app = getApplication();
-            app.setLastRecover(System.currentTimeMillis()); // Change recover time
+            app.setLastRecover(System.currentTimeMillis());
 
-            if (!zookeeperRegistryClient.isRunning()) {
+            if (!client.isRunning()) {
                 return;
             }
 
             if (!StringUtils.isEmpty(currentSession)) {
                 try {
-                    zookeeperRegistryClient.getCuratorClient().delete().forPath(currentSession);
+                    client.getCuratorClient().delete().forPath(currentSession);
                     currentSession = null;
                 } catch (Exception e) {
                     LOGGER.warn("Error while recycle old session node {}", currentSession, e);
                 }
             }
 
-            Stat stat = zookeeperRegistryClient.getCuratorClient().checkExists()
+            Stat stat = client.getCuratorClient().checkExists()
                 .forPath(ZookeeperConstants.SOFA_BOOT_CLIENT_ROOT);
             if (stat == null) {
-                zookeeperRegistryClient.getCuratorClient().create()
-                    .creatingParentContainersIfNeeded().withMode(CreateMode.PERSISTENT)
+                client.getCuratorClient().create().creatingParentContainersIfNeeded()
+                    .withMode(CreateMode.PERSISTENT)
                     .forPath(ZookeeperConstants.SOFA_BOOT_CLIENT_ROOT);
             }
             byte[] bytes = JsonUtils.toJsonBytes(app);
-            String sessionNode = zookeeperRegistryClient.toSessionNode(app);
-            currentSession = zookeeperRegistryClient.getCuratorClient().create()
-                .creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL)
-                .forPath(sessionNode, bytes);
+            String sessionNode = ZookeeperRegistryUtils.toSessionNode(app);
+            currentSession = client.getCuratorClient().create().creatingParentContainersIfNeeded()
+                .withMode(CreateMode.EPHEMERAL).forPath(sessionNode, bytes);
 
         } finally {
             lock.unlock();
@@ -112,12 +110,34 @@ public class ZookeeperAppPublisher extends AppPublisher<ZookeeperRegistryConfig>
         try {
             Application app = getApplication();
 
-            if (zookeeperRegistryClient.isRunning()) {
-                String sessionNode = zookeeperRegistryClient.toSessionNode(app);
-                zookeeperRegistryClient.getCuratorClient().delete().forPath(sessionNode);
+            if (client.isRunning()) {
+                String sessionNode = ZookeeperRegistryUtils.toSessionNode(app);
+                client.getCuratorClient().delete().forPath(sessionNode);
             }
         } finally {
             lock.unlock();
+        }
+    }
+
+    private class AppPublisherLifecycleHandler implements LifecycleHandler {
+
+        @Override
+        public String getName() {
+            return "AppPublisherLifecycle";
+        }
+
+        @Override
+        public void beforeStart(CuratorFramework client) {
+            client.getConnectionStateListenable().addListener((cli, newState) -> {
+                if (newState == ConnectionState.RECONNECTED) {
+                    LOGGER.info("Try to recover session node while reconnected");
+                    try {
+                        register();
+                    } catch (Exception e) {
+                        LOGGER.error("Recover session error", e);
+                    }
+                }
+            });
         }
     }
 
