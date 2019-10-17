@@ -63,23 +63,6 @@ public class ArkBizLifecycleHandler implements LifecycleHandler {
         } catch (Exception arkException) {
             return;
         }
-
-        String bizPath = getBizPath();
-
-        NodeCache nodeCache = new NodeCache(client, getBizPath());
-        NodeCacheListener listener = () -> {
-            if (introspectBizEndpoint.bizState() instanceof ClientResponse) {
-                ClientResponse clientResponse = (ClientResponse) introspectBizEndpoint.bizState();
-                byte[] bytes = JsonUtils.toJsonBytes(clientResponse);
-                client.setData().forPath(bizPath, bytes);
-            }
-        };
-        nodeCache.getListenable().addListener(listener);
-        try {
-            nodeCache.start();
-        } catch (Exception e) {
-            LOGGER.error("Error to start listener to biz path {}", bizPath, e);
-        }
     }
 
     @Override
@@ -89,6 +72,22 @@ public class ArkBizLifecycleHandler implements LifecycleHandler {
         try {
             client.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL)
                 .forPath(bizPath);
+
+            NodeCache nodeCache = new NodeCache(client, getBizPath());
+            NodeCacheListener listener = () -> {
+                if (introspectBizEndpoint.bizState() instanceof ClientResponse) {
+                    ClientResponse clientResponse = (ClientResponse) introspectBizEndpoint.bizState();
+                    byte[] bytes = JsonUtils.toJsonBytes(clientResponse);
+                    client.setData().forPath(bizPath, bytes);
+                }
+            };
+            nodeCache.getListenable().addListener(listener);
+            try {
+                nodeCache.start();
+            } catch (Exception e) {
+                LOGGER.error("Error to start listener to biz path {}", bizPath, e);
+            }
+
         } catch (Exception e) {
             LOGGER.error("Error to create to biz path {}", bizPath, e);
         }
