@@ -18,10 +18,9 @@ package com.alipay.sofa.dashboard.client.registry;
 
 import com.alipay.sofa.dashboard.client.base.TestBase;
 import com.alipay.sofa.dashboard.client.model.common.Application;
-import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppPublisher;
-import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppSubscriber;
-import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +33,7 @@ import java.util.List;
  */
 public class ZookeeperRegistryBasicTest extends TestBase {
 
-    private static final Logger           LOGGER = LoggerFactory
-                                                     .getLogger(ZookeeperRegistryBasicTest.class);
-
-    private final ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperRegistryBasicTest.class);
 
     @Before
     public void clearData() {
@@ -52,11 +48,11 @@ public class ZookeeperRegistryBasicTest extends TestBase {
             .port(8080).startTime(System.currentTimeMillis())
             .lastRecover(System.currentTimeMillis()).appState("UP").build();
 
-        AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app, zookeeperRegistryClient);
+        AppPublisher publisher = newPublisher(app);
         publisher.start();
         publisher.register();
 
-        AppSubscriber<?> subscriber = new ZookeeperAppSubscriber(config);
+        AppSubscriber subscriber = newSubscriber();
         subscriber.start();
 
         List<Application> query = subscriber.getByName("no_such_app");
@@ -78,18 +74,16 @@ public class ZookeeperRegistryBasicTest extends TestBase {
             .lastRecover(System.currentTimeMillis()).appState("UP").build();
 
         // Register two different applications
-        AppPublisher<?> publisher1 = new ZookeeperAppPublisher(config, app1,
-            zookeeperRegistryClient);
+        AppPublisher publisher1 = newPublisher(app1);
         publisher1.start();
         publisher1.register();
 
-        AppPublisher<?> publisher2 = new ZookeeperAppPublisher(config, app2,
-            zookeeperRegistryClient);
+        AppPublisher publisher2 = newPublisher(app2);
         publisher2.start();
         publisher2.register();
 
         // Create a subscriber after register
-        AppSubscriber<?> subscriber = new ZookeeperAppSubscriber(config);
+        AppSubscriber subscriber = newSubscriber();
         subscriber.start();
 
         // Query applications
@@ -115,7 +109,7 @@ public class ZookeeperRegistryBasicTest extends TestBase {
         final String appName = "test_app";
 
         List<Application> samples = new ArrayList<>();
-        List<AppPublisher<?>> publishers = new ArrayList<>();
+        List<AppPublisher> publishers = new ArrayList<>();
 
         // Create multi application instances with same name
         for (String instanceIp : new String[] { "10.1.1.1", "10.1.1.2", "10.1.1.3", "10.1.1.4" }) {
@@ -124,8 +118,7 @@ public class ZookeeperRegistryBasicTest extends TestBase {
                 .lastRecover(System.currentTimeMillis()).appState("UP").build();
             samples.add(app);
 
-            AppPublisher<?> publisher = new ZookeeperAppPublisher(config, app,
-                zookeeperRegistryClient);
+            AppPublisher publisher = newPublisher(app);
             publisher.start();
             publisher.register();
             publishers.add(publisher);
@@ -133,7 +126,7 @@ public class ZookeeperRegistryBasicTest extends TestBase {
         samples.sort(Comparator.naturalOrder());
 
         // Create a subscriber after register
-        AppSubscriber<?> subscriber = new ZookeeperAppSubscriber(config);
+        AppSubscriber subscriber = newSubscriber();
         subscriber.start();
 
         //Query applications
@@ -145,7 +138,7 @@ public class ZookeeperRegistryBasicTest extends TestBase {
 
         // -- do recycle --
         subscriber.shutdown();
-        for (AppPublisher<?> publisher : publishers) {
+        for (AppPublisher publisher : publishers) {
             publisher.shutdown();
         }
     }

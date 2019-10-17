@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.dashboard.client.listener;
 
-import com.alipay.sofa.ark.springboot2.endpoint.IntrospectBizEndpoint;
 import com.alipay.sofa.dashboard.client.registry.AppPublisher;
 import com.alipay.sofa.healthcheck.startup.ReadinessCheckListener;
 import org.slf4j.Logger;
@@ -25,8 +24,7 @@ import org.springframework.boot.actuate.health.Status;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.springframework.stereotype.Component;
 
 /**
  * By listening to the ContextRefreshedEvent listener, after the application is fully started,
@@ -34,43 +32,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author guolei.sgl (guolei.sgl@antfin.com) 2019/2/19 2:17 PM
  **/
+@Component
 public class SofaDashboardContextRefreshedListener implements
                                                   ApplicationListener<ContextRefreshedEvent> {
 
-    private static final Logger LOGGER          = LoggerFactory
-                                                    .getLogger(SofaDashboardContextRefreshedListener.class);
-
-    private AtomicBoolean       isBizStateStart = new AtomicBoolean(false);
+    private static final Logger LOGGER = LoggerFactory
+                                           .getLogger(SofaDashboardContextRefreshedListener.class);
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         ApplicationContext context = event.getApplicationContext();
         ReadinessCheckListener readinessCheckListener = context
             .getBean(ReadinessCheckListener.class);
-        AppPublisher<?> publisher = context.getBean(AppPublisher.class);
+        AppPublisher publisher = context.getBean(AppPublisher.class);
 
         try {
             String status = readinessCheckListener.getHealthCheckerStatus() ? Status.UP.toString()
                 : Status.DOWN.toString();
             publisher.getApplication().setAppState(status);
+            publisher.start();
             publisher.register();
-
-            IntrospectBizEndpoint introspectBizEndpoint = context
-                .getBean(IntrospectBizEndpoint.class);
-
-            try {
-                // just check ,if no ark env , it will be throw exception
-                introspectBizEndpoint.bizState();
-            } catch (Exception arkException) {
-                // set true
-                isBizStateStart.getAndSet(true);
-            } finally {
-                if (isBizStateStart.compareAndSet(false, true)) {
-                    // 启动 biz 状态监听
-                    BizStateListener bizStateListener = context.getBean(BizStateListener.class);
-                    bizStateListener.start();
-                }
-            }
         } catch (Exception e) {
             LOGGER.info("sofa dashboard client register failed.", e);
         }

@@ -19,24 +19,31 @@ package com.alipay.sofa.dashboard.client.registry.zookeeper;
 import com.alipay.sofa.dashboard.client.model.common.Application;
 import com.alipay.sofa.dashboard.client.registry.AppSubscriber;
 import com.alipay.sofa.dashboard.client.utils.JsonUtils;
+import com.alipay.sofa.dashboard.client.zookeeper.LifecycleHandler;
+import com.alipay.sofa.dashboard.client.zookeeper.ZookeeperClient;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
 import org.apache.curator.framework.recipes.cache.TreeCacheListener;
-import org.apache.zookeeper.KeeperException;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfig> {
+public class ZookeeperAppSubscriber implements AppSubscriber {
 
     private static final Logger                    LOGGER       = LoggerFactory
                                                                     .getLogger(ZookeeperAppSubscriber.class);
@@ -46,55 +53,21 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
      */
     private volatile Map<String, Set<Application>> applications = new ConcurrentHashMap<>();
 
-    private final ZookeeperRegistryClient          client;
+    private final ZookeeperClient                  client;
 
-    public ZookeeperAppSubscriber(ZookeeperRegistryConfig config) {
-        super(config);
-        this.client = new ZookeeperRegistryClient(config);
+    public ZookeeperAppSubscriber(ZookeeperClient client) {
+        this.client = client;
     }
 
     @Override
     public boolean start() {
-        boolean startFlag = client.doStart((curatorFramework -> {
-            // Add listeners to manage local cache
-            TreeCache cache = new TreeCache(curatorFramework,
-                ZookeeperConstants.SOFA_BOOT_CLIENT_INSTANCE);
-            TreeCacheListener listener = (client, event) -> {
-                String dataPath = event.getData() == null ? null : event.getData().getPath();
-                LOGGER
-                    .info("Dashboard client event type = {}, path= {}", event.getType(), dataPath);
-                switch (event.getType()) {
-                    case NODE_ADDED:
-                    case NODE_UPDATED:
-                        runInSafe(() -> doCreateOrUpdateApplications(event));
-                        break;
-                    case NODE_REMOVED:
-                    case CONNECTION_LOST:
-                        runInSafe(() -> doRemoveApplications(event));
-                        break;
-                    case CONNECTION_RECONNECTED: // Try to recover data while reconnected
-                        runInSafe(this::doRebuildCache);
-                        break;
-                    default:
-                        break;
-                }
-            };
-            cache.getListenable().addListener(listener);
-            try {
-                cache.start();
-            } catch (Exception e) {
-                LOGGER.error("Start cache error.", e);
-            }
-        }));
-        if (startFlag) {
-            runInSafe(this::doRebuildCache);
-        }
-        return startFlag;
+        client.addLifecycleHandler(new AppSubscriberLifecycleHandler());
+        return client.start();
     }
 
     @Override
     public void shutdown() {
-        client.doShutdown();
+        client.shutdown();
     }
 
     @Override
@@ -139,10 +112,8 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
 
     /**
      * Fetch all instance information from zookeeper.
-     *
-     * @throws Exception Zookeeper client exception
      */
-    private void doRebuildCache() throws Exception {
+    private void doRebuildCache() {
         List<String> appNames;
         try {
             appNames = client.getCuratorClient().getChildren()
@@ -150,7 +121,7 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
             if (appNames == null || appNames.isEmpty()) {
                 return;
             }
-        } catch (KeeperException.NoNodeException ignore) {
+        } catch (Exception ignore) {
             return;
         }
 
@@ -191,7 +162,7 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
      */
     private void doCreateOrUpdateApplications(TreeCacheEvent event) {
         ChildData chileData = event.getData();
-        Application app = client.parseSessionNode(chileData.getPath());
+        Application app = ZookeeperRegistryUtils.parseSessionNode(chileData.getPath());
         if (app != null) {
             applications.compute(app.getAppName(), (key, value) -> {
                 Set<Application> group = value == null ? new ConcurrentSkipListSet<>() : value;
@@ -213,12 +184,59 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
             return; // Maybe null if session is timeout
         }
 
-        Application app = client.parseSessionNode(chileData.getPath());
+        Application app = ZookeeperRegistryUtils.parseSessionNode(chileData.getPath());
         if (app != null) {
             applications.computeIfPresent(app.getAppName(), (key, value) -> {
                 value.remove(app); // Always remove whatever if it's exists
                 return value;
             });
+        }
+    }
+
+    private class AppSubscriberLifecycleHandler implements LifecycleHandler {
+
+        @Override
+        public String getName() {
+            return "AppSubscriberLifecycle";
+        }
+
+        @Override
+        public void beforeStart(CuratorFramework client) {
+            // Add listeners to manage local cache
+            TreeCache cache = new TreeCache(client,
+                ZookeeperConstants.SOFA_BOOT_CLIENT_INSTANCE);
+            TreeCacheListener listener = (cli, event) -> {
+                String dataPath = event.getData() == null ? null : event.getData().getPath();
+                LOGGER
+                    .info("Dashboard client event type = {}, path= {}", event.getType(),
+                        dataPath);
+                switch (event.getType()) {
+                    case NODE_ADDED:
+                    case NODE_UPDATED:
+                        runInSafe(() -> doCreateOrUpdateApplications(event));
+                        break;
+                    case NODE_REMOVED:
+                    case CONNECTION_LOST:
+                        runInSafe(() -> doRemoveApplications(event));
+                        break;
+                    case CONNECTION_RECONNECTED: // Try to recover data while reconnected
+                        doRebuildCache();
+                        break;
+                    default:
+                        break;
+                }
+            };
+            cache.getListenable().addListener(listener);
+            try {
+                cache.start();
+            } catch (Exception e) {
+                LOGGER.error("Start cache error.", e);
+            }
+        }
+
+        @Override
+        public void afterStarted(CuratorFramework client) {
+            doRebuildCache();
         }
     }
 
@@ -236,6 +254,11 @@ public class ZookeeperAppSubscriber extends AppSubscriber<ZookeeperRegistryConfi
     }
 
     private interface ThrowableRunnable {
+        /**
+         * A throwable task
+         *
+         * @throws Throwable unexpected error
+         */
         void run() throws Throwable;
     }
 }

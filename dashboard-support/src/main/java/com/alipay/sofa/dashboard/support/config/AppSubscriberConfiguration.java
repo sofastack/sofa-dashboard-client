@@ -18,7 +18,8 @@ package com.alipay.sofa.dashboard.support.config;
 
 import com.alipay.sofa.dashboard.client.registry.AppSubscriber;
 import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperAppSubscriber;
-import com.alipay.sofa.dashboard.client.registry.zookeeper.ZookeeperRegistryConfig;
+import com.alipay.sofa.dashboard.client.zookeeper.ZookeeperClient;
+import com.alipay.sofa.dashboard.client.zookeeper.ZookeeperConfig;
 import com.alipay.sofa.dashboard.support.properties.SofaDashboardZookeeperProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -36,15 +37,15 @@ public class AppSubscriberConfiguration {
 
     @Bean(destroyMethod = "shutdown")
     @ConditionalOnMissingBean
-    public AppSubscriber<?> getSubscriber(SofaDashboardZookeeperProperties prop) {
-        ZookeeperRegistryConfig config = new ZookeeperRegistryConfig();
+    public AppSubscriber getSubscriber(SofaDashboardZookeeperProperties prop) {
+        ZookeeperConfig config = new ZookeeperConfig();
         config.setAddress(prop.getAddress());
         config.setBaseSleepTimeMs(prop.getBaseSleepTimeMs());
         config.setMaxRetries(prop.getMaxRetries());
         config.setSessionTimeoutMs(prop.getSessionTimeoutMs());
         config.setConnectionTimeoutMs(prop.getConnectionTimeoutMs());
 
-        ZookeeperAppSubscriber subscriber = new ZookeeperAppSubscriber(config);
+        ZookeeperAppSubscriber subscriber = new ZookeeperAppSubscriber(new ZookeeperClient(config));
         subscriber.start();
         return subscriber;
     }

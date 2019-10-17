@@ -36,7 +36,7 @@ public class SofaDashboardContextClosedListener implements ApplicationListener<C
     @Override
     public void onApplicationEvent(ContextClosedEvent event) {
         try {
-            AppPublisher<?> publisher = event.getApplicationContext().getBean(AppPublisher.class);
+            AppPublisher publisher = event.getApplicationContext().getBean(AppPublisher.class);
             publisher.unRegister();
         } catch (Exception e) {
             LOGGER.info("sofa dashboard client unregister failed.", e);

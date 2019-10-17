@@ -17,7 +17,6 @@
 package com.alipay.sofa.dashboard.client.registry;
 
 import com.alipay.sofa.dashboard.client.model.common.Application;
-import com.alipay.sofa.dashboard.client.model.common.RegistryConfig;
 
 import java.util.List;
 import java.util.Map;
@@ -25,56 +24,47 @@ import java.util.Map;
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-public abstract class AppSubscriber<CFG extends RegistryConfig> {
-
-    private final CFG config;
-
-    public AppSubscriber(CFG config) {
-        this.config = config;
-    }
-
-    public CFG getConfig() {
-        return config;
-    }
+public interface AppSubscriber {
 
     /**
      * Startup registry.
      *
      * @return return {@code false} if it is already started
      */
-    public abstract boolean start();
+    boolean start();
 
     /**
      * Shutdown registry.
      */
-    public abstract void shutdown();
+    void shutdown();
 
     /**
      * Get all application instances.
      *
      * @return application instance list
      */
-    public abstract List<Application> getAll();
+    List<Application> getAll();
 
     /**
      * Get application instances by name.
      *
+     * @param appName application service name
      * @return application instance list
      */
-    public abstract List<Application> getByName(String appName);
+    List<Application> getByName(String appName);
 
     /**
      * Get all application names
      *
      * @return application names list
      */
-    public abstract List<String> getAllNames();
+    List<String> getAllNames();
 
     /**
      * Count all instance group by service name
      *
      * @return count result
      */
-    public abstract Map<String, Integer> summaryCounts();
+    Map<String, Integer> summaryCounts();
 
 }

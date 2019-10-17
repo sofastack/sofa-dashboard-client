@@ -19,21 +19,20 @@ package com.alipay.sofa.dashboard.client.registry.zookeeper;
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-public class ZookeeperConstants {
+final class ZookeeperConstants {
 
-    public static final String SEPARATOR                 = "/";
+    static final String SEPARATOR                 = "/";
 
-    public static final String SOFA_BOOT_CLIENT_ROOT     = SEPARATOR + "apps";
+    static final String SOFA_BOOT_CLIENT_ROOT     = SEPARATOR + "apps";
 
-    public static final String SOFA_BOOT_CLIENT_INSTANCE = SOFA_BOOT_CLIENT_ROOT + SEPARATOR
-                                                           + "instance";
+    static final String SOFA_BOOT_CLIENT_INSTANCE = SOFA_BOOT_CLIENT_ROOT + SEPARATOR + "instance";
 
-    public static final String COLON                     = ":";
+    static final String COLON                     = ":";
 
-    public static final String QUERY                     = "?";
+    static final String QUERY                     = "?";
 
-    public static final String AND                       = "&";
+    static final String AND                       = "&";
 
-    public static final String EQUAL                     = "=";
+    static final String EQUAL                     = "=";
 
 }

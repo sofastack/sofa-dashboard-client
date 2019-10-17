@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.dashboard.client.registry.zookeeper;
+package com.alipay.sofa.dashboard.client.zookeeper;
 
 import com.alipay.sofa.dashboard.client.model.common.RegistryConfig;
 
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
-public class ZookeeperRegistryConfig extends RegistryConfig {
+public class ZookeeperConfig extends RegistryConfig {
 
     /**
      * Registry 客户端错误重试间隔(ms).
