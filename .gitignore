@@ -22,3 +22,4 @@ logs/
 node_modules
 coverage-report
 .vscode
+*.factorypath

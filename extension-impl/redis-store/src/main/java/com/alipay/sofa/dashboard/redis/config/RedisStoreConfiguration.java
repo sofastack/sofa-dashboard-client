@@ -16,11 +16,8 @@
  */
 package com.alipay.sofa.dashboard.redis.config;
 
-import com.alipay.sofa.dashboard.redis.io.LettuceConnFactoryProvider;
-import com.alipay.sofa.dashboard.redis.io.RedisRecordExporter;
-import com.alipay.sofa.dashboard.redis.io.RedisRecordImporter;
-import com.alipay.sofa.dashboard.redis.properties.SofaDashboardRedisProperties;
-import io.lettuce.core.resource.DefaultClientResources;
+import java.io.Closeable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -31,7 +28,12 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.io.Closeable;
+import com.alipay.sofa.dashboard.redis.io.LettuceConnFactoryProvider;
+import com.alipay.sofa.dashboard.redis.io.RedisRecordExporter;
+import com.alipay.sofa.dashboard.redis.io.RedisRecordImporter;
+import com.alipay.sofa.dashboard.redis.properties.SofaDashboardRedisProperties;
+
+import io.lettuce.core.resource.DefaultClientResources;
 
 /**
  * @author chen.pengzhi (chpengzh@foxmail.com)

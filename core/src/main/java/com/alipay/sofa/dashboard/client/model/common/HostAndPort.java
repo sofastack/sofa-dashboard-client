@@ -19,6 +19,8 @@ package com.alipay.sofa.dashboard.client.model.common;
 import java.io.Serializable;
 import java.util.Objects;
 
+import org.springframework.util.StringUtils;
+
 /**
  * Host and port definition
  *
@@ -30,14 +32,17 @@ public class HostAndPort implements Comparable<HostAndPort>, Serializable {
 
     private String           host;
 
+    private String           internalHost;
+
     private int              port;
 
-    public HostAndPort() {
-    }
+    // public HostAndPort() {
+    // }
 
-    public HostAndPort(String host, int port) {
+    public HostAndPort(String host, String interHost, int port) {
         this.host = host;
         this.port = port;
+        this.internalHost = interHost;
     }
 
     /**
@@ -46,7 +51,19 @@ public class HostAndPort implements Comparable<HostAndPort>, Serializable {
      * @return instance id
      */
     public String toInstanceId() {
-        return String.format("%s_%d", host, port);
+        if (StringUtils.isEmpty(internalHost)) {
+            return String.format("%s_%d", host, port);
+        } else {
+            return String.format("%s_%s_%d", host, internalHost, port);
+        }
+    }
+
+    public String getInternalHost() {
+        return internalHost;
+    }
+
+    public void setInternalHost(String internalHost) {
+        this.internalHost = internalHost;
     }
 
     public String getHost() {
@@ -68,13 +85,15 @@ public class HostAndPort implements Comparable<HostAndPort>, Serializable {
     @Override
     public int compareTo(HostAndPort o) {
         int hostSign = Integer.compare(host.compareTo(o.host), 0) << 2;
+        int internalSign = Integer.compare(internalHost.compareTo(o.internalHost), 0) << 2;
         int portSign = Integer.compare(port, o.port);
         return hostSign + portSign;
     }
 
     @Override
     public String toString() {
-        return "HostAndPort{" + "host='" + host + '\'' + ", port=" + port + '}';
+        return "HostAndPort{" + "host='" + host + '\'' + ", internalHost='" + internalHost + '\''
+               + ", port=" + port + '}';
     }
 
     @Override
@@ -84,11 +103,12 @@ public class HostAndPort implements Comparable<HostAndPort>, Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         HostAndPort that = (HostAndPort) o;
-        return getPort() == that.getPort() && Objects.equals(getHost(), that.getHost());
+        return getPort() == that.getPort() && Objects.equals(getHost(), that.getHost())
+               && Objects.equals(getInternalHost(), that.getInternalHost());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getHost(), getPort());
+        return Objects.hash(getHost(), getInternalHost(), getPort());
     }
 }

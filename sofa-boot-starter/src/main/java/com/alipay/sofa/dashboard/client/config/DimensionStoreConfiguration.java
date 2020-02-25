@@ -63,10 +63,21 @@ public class DimensionStoreConfiguration {
 
     private HostAndPort getHostAndPort(Environment env, SofaDashboardClientProperties properties) {
         NetworkAddressUtils.calculate(null, null);
-        String ip = StringUtils.isEmpty(properties.getInstanceIp()) ? NetworkAddressUtils
-            .getLocalIP() : properties.getInstanceIp();
+        String ip = null;
+        boolean isInstanceIpEmpty = StringUtils.isEmpty(properties.getInstanceIp());
+        if (isInstanceIpEmpty) {
+            boolean isVirtualHostEmpty = StringUtils.isEmpty(properties.getVirtualHost());
+            if (isVirtualHostEmpty) {
+                ip = NetworkAddressUtils.getLocalIP();
+            } else {
+                ip = properties.getVirtualHost();
+            }
+        } else {
+            ip = properties.getInstanceIp();
+        }
         int port = Integer.parseInt(env.getProperty(KEY_SERVER_PORT, DEFAULT_SERVER_PORT));
-        return new HostAndPort(ip, port);
+        String internalHost = properties.getInternalHost();
+        return new HostAndPort(ip, internalHost, port);
     }
 
     /**

@@ -62,11 +62,16 @@ public class AppPublisherConfiguration {
 
         Application app = new Application();
         app.setAppName(env.getRequiredProperty(KEY_SPRING_APP_NAME));
-        app.setHostName(getLocalIp(prop));
+        app.setHostName(getHostIp(prop));
+        app.setInternalHost(getInteralHost(prop));
         app.setPort(Integer.parseInt(env.getProperty(KEY_SERVER_PORT, DEFAULT_SERVER_PORT)));
         app.setStartTime(current);
         app.setLastRecover(current);
         return app;
+    }
+
+    private String getInteralHost(SofaDashboardClientProperties properties) {
+        return properties.getInternalHost();
     }
 
     @Bean
@@ -112,9 +117,20 @@ public class AppPublisherConfiguration {
         return new ZookeeperAppPublisher(application, client);
     }
 
-    private String getLocalIp(SofaDashboardClientProperties properties) {
+    private String getHostIp(SofaDashboardClientProperties properties) {
         NetworkAddressUtils.calculate(null, null);
-        return StringUtils.isEmpty(properties.getInstanceIp()) ? NetworkAddressUtils.getLocalIP()
-            : properties.getInstanceIp();
+        String ip = null;
+        boolean isInstanceIpEmpty = StringUtils.isEmpty(properties.getInstanceIp());
+        if (isInstanceIpEmpty) {
+            boolean isVirtualHostEmpty = StringUtils.isEmpty(properties.getVirtualHost());
+            if (isVirtualHostEmpty) {
+                ip = NetworkAddressUtils.getLocalIP();
+            } else {
+                ip = properties.getVirtualHost();
+            }
+        } else {
+            ip = properties.getInstanceIp();
+        }
+        return ip;
     }
 }

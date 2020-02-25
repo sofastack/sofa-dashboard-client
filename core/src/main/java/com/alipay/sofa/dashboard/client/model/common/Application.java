@@ -19,6 +19,8 @@ package com.alipay.sofa.dashboard.client.model.common;
 import java.io.Serializable;
 import java.util.Objects;
 
+import org.springframework.util.StringUtils;
+
 /**
  * Application instance model definition
  *
@@ -37,6 +39,12 @@ public class Application implements Serializable, Comparable<Application> {
      * Binding host name
      */
     private String           hostName;
+
+    /**
+     * 内部IP
+     * 
+     */
+    private String           internalHost;
 
     /**
      * Binding port
@@ -64,6 +72,7 @@ public class Application implements Serializable, Comparable<Application> {
     private Application(Builder builder) {
         setAppName(builder.appName);
         setHostName(builder.hostName);
+        setInternalHost(builder.internalHost);
         setPort(builder.port);
         setAppState(builder.appState);
         setStartTime(builder.startTime);
@@ -78,7 +87,15 @@ public class Application implements Serializable, Comparable<Application> {
     public String toString() {
         return "Application{" + "appName='" + appName + '\'' + ", hostName='" + hostName + '\''
                + ", port=" + port + ", appState='" + appState + '\'' + ", startTime=" + startTime
-               + ", lastRecover=" + lastRecover + '}';
+               + ", lastRecover=" + lastRecover + "internalHost" + internalHost + '}';
+    }
+
+    public String getInternalHost() {
+        return internalHost;
+    }
+
+    public void setInternalHost(String internalHost) {
+        this.internalHost = internalHost;
     }
 
     public String getAppName() {
@@ -137,31 +154,48 @@ public class Application implements Serializable, Comparable<Application> {
             return false;
         Application that = (Application) o;
         return getPort() == that.getPort() && Objects.equals(getAppName(), that.getAppName())
-               && Objects.equals(getHostName(), that.getHostName());
+               && Objects.equals(getHostName(), that.getHostName())
+               && Objects.equals(getInternalHost(), that.getInternalHost());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAppName(), getHostName(), getPort());
+        return Objects.hash(getAppName(), getHostName(), getInternalHost(), getPort());
     }
 
     @Override
     public int compareTo(Application o) {
-        int nameSign = Integer.compare(appName.compareTo(o.appName), 0) << 2;
-        int hostSign = Integer.compare(hostName.compareTo(o.hostName), 0) << 1;
+        int nameSign = Integer.compare(appName.compareTo(o.appName), 0) << 3;
+        int hostSign = Integer.compare(hostName.compareTo(o.hostName), 0) << 2;
         int portSign = Integer.compare(port, o.port);
-        return nameSign + hostSign + portSign;
+        boolean isTargetInternalHostNull = StringUtils.isEmpty(o.internalHost);
+        boolean isInternalHostNull = StringUtils.isEmpty(internalHost);
+        if (isInternalHostNull && isTargetInternalHostNull) {
+            return nameSign + hostSign + portSign;
+        } else if (isTargetInternalHostNull == false && isInternalHostNull == false) {
+            int internalSign = Integer.compare(internalHost.compareTo(o.internalHost), 0) << 1;
+            return nameSign + hostSign + internalSign + portSign;
+        } else {
+            return 1;
+        }
     }
 
     public static final class Builder {
+
         private String appName;
         private String hostName;
+        private String internalHost;
         private int    port;
         private String appState;
         private long   startTime;
         private long   lastRecover;
 
         private Builder() {
+        }
+
+        public Builder internalHost(String internalHost) {
+            this.internalHost = internalHost;
+            return this;
         }
 
         public Builder appName(String appName) {

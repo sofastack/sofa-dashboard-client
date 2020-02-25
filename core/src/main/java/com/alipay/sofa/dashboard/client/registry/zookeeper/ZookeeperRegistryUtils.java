@@ -16,17 +16,18 @@
  */
 package com.alipay.sofa.dashboard.client.registry.zookeeper;
 
-import com.alipay.sofa.dashboard.client.model.common.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
+import com.alipay.sofa.dashboard.client.model.common.Application;
 
 /**
  * @author chpengzh@didiglobal.com
@@ -45,14 +46,15 @@ final class ZookeeperRegistryUtils {
     /**
      * Convert an instance definition into session node name
      *
-     * @param instance application instance
+     * @param instance
+     *            application instance
      * @return session node name
      */
     @NonNull
     static String toSessionNode(Application instance) {
-        String appId = String.format("%s:%d?startTime=%d&lastRecover=%d&state=%s",
-            instance.getHostName(), instance.getPort(), instance.getStartTime(),
-            instance.getLastRecover(), instance.getAppState());
+        String appId = String.format("%s:%d?internalHost=%s&startTime=%d&lastRecover=%d&state=%s",
+            instance.getHostName(), instance.getPort(), instance.getInternalHost(),
+            instance.getStartTime(), instance.getLastRecover(), instance.getAppState());
         String appName = instance.getAppName();
         return String.format("%s/%s/%s", ZookeeperConstants.SOFA_BOOT_CLIENT_INSTANCE, appName,
             appId);
@@ -61,7 +63,8 @@ final class ZookeeperRegistryUtils {
     /**
      * Parse session node to application instance.
      *
-     * @param sessionNode session node path
+     * @param sessionNode
+     *            session node path
      * @return {@code null}, if this session path is not a legal one
      */
     @Nullable
@@ -90,6 +93,7 @@ final class ZookeeperRegistryUtils {
 
             Application application = new Application();
             application.setAppName(appName);
+            application.setInternalHost(query.get("internalHost"));
             application.setHostName(instanceUri.getHost());
             application.setPort(instanceUri.getPort());
             application.setAppState(query.get("state"));
