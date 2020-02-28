@@ -96,6 +96,6 @@ public class ArkBizLifecycleHandler implements LifecycleHandler {
     private String getBizPath() {
         return Constants.SOFA_BOOT_CLIENT_ROOT + Constants.SOFA_BOOT_CLIENT_BIZ
                + Constants.SEPARATOR + application.getAppName() + Constants.SEPARATOR
-               + application.getHostName();
+               + application.getHostName() + Constants.COLON + application.getInternalHost();
     }
 }
