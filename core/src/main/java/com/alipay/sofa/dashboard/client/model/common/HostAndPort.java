@@ -59,7 +59,7 @@ public class HostAndPort implements Comparable<HostAndPort>, Serializable {
 	}
 
 	public String getInternalHost() {
-		return "null" == internalHost ? null : internalHost;
+		return "null".equals(internalHost) ? null : internalHost;
 	}
 
 	public void setInternalHost(String internalHost) {
@@ -85,9 +85,9 @@ public class HostAndPort implements Comparable<HostAndPort>, Serializable {
 	@Override
 	public int compareTo(HostAndPort o) {
 		int hostSign = Integer.compare(host.compareTo(o.host), 0) << 2;
-		int internalSign = Integer.compare(internalHost.compareTo(o.internalHost), 0) << 2;
+		int internalSign = Integer.compare(internalHost.compareTo(o.internalHost), 0) << 1;
 		int portSign = Integer.compare(port, o.port);
-		return hostSign + portSign;
+		return hostSign + portSign + internalSign;
 	}
 
 	@Override
