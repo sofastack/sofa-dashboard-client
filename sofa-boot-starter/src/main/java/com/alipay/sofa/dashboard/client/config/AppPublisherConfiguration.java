@@ -44,93 +44,99 @@ import java.util.List;
  */
 @Configuration
 @ConditionalOnWebApplication
-@EnableConfigurationProperties({ SofaDashboardClientProperties.class,
-                                SofaDashboardZookeeperProperties.class })
+@EnableConfigurationProperties({ SofaDashboardClientProperties.class, SofaDashboardZookeeperProperties.class })
 @ConditionalOnProperty(prefix = "com.alipay.sofa.dashboard.client", value = "enable", matchIfMissing = true)
 public class AppPublisherConfiguration {
 
-    private static final String KEY_SPRING_APP_NAME = "spring.application.name";
+	private static final String KEY_SPRING_APP_NAME = "spring.application.name";
 
-    private static final String KEY_SERVER_PORT     = "server.port";
+	private static final String KEY_SERVER_PORT = "server.port";
 
-    private static final String DEFAULT_SERVER_PORT = "8080";
+	private static final String DEFAULT_SERVER_PORT = "8080";
 
-    @Bean(name = "application")
-    @ConditionalOnMissingBean
-    public Application getApplicationInstance(Environment env, SofaDashboardClientProperties prop) {
-        long current = System.currentTimeMillis();
+	@Bean(name = "application")
+	@ConditionalOnMissingBean
+	public Application getApplicationInstance(Environment env, SofaDashboardClientProperties prop) {
+		long current = System.currentTimeMillis();
 
-        Application app = new Application();
-        app.setAppName(env.getRequiredProperty(KEY_SPRING_APP_NAME));
-        app.setHostName(getHostIp(prop));
-        app.setInternalHost(getInteralHost(prop));
-        app.setPort(Integer.parseInt(env.getProperty(KEY_SERVER_PORT, DEFAULT_SERVER_PORT)));
-        app.setStartTime(current);
-        app.setLastRecover(current);
-        return app;
-    }
+		Application app = new Application();
+		app.setAppName(env.getRequiredProperty(KEY_SPRING_APP_NAME));
+		app.setHostName(getHostIp(prop));
+		app.setInternalHost(getInteralHost(prop));
+		app.setPort(getPort(prop,env));
+		app.setStartTime(current);
+		app.setLastRecover(current);
+		return app;
+	}
 
-    private String getInteralHost(SofaDashboardClientProperties properties) {
-        return properties.getInternalHost();
-    }
+	private String getInteralHost(SofaDashboardClientProperties properties) {
+		return properties.getInternalHost();
+	}
 
-    @Bean
-    @ConditionalOnMissingBean
-    public IntrospectBizEndpoint introspectBizEndpoint() {
-        return new IntrospectBizEndpoint();
-    }
+	@Bean
+	@ConditionalOnMissingBean
+	public IntrospectBizEndpoint introspectBizEndpoint() {
+		return new IntrospectBizEndpoint();
+	}
 
-    @Bean
-    @ConditionalOnMissingBean
-    public ArkBizLifecycleHandler bizStateListener(IntrospectBizEndpoint endpoint,
-                                                   Application application) {
-        return new ArkBizLifecycleHandler(endpoint, application);
-    }
+	@Bean
+	@ConditionalOnMissingBean
+	public ArkBizLifecycleHandler bizStateListener(IntrospectBizEndpoint endpoint, Application application) {
+		return new ArkBizLifecycleHandler(endpoint, application);
+	}
 
-    @Bean
-    @ConditionalOnMissingBean
-    public ZookeeperConfig getZookeeperRegistryConfig(SofaDashboardZookeeperProperties prop) {
-        ZookeeperConfig config = new ZookeeperConfig();
-        config.setAddress(prop.getAddress());
-        config.setBaseSleepTimeMs(prop.getBaseSleepTimeMs());
-        config.setMaxRetries(prop.getMaxRetries());
-        config.setSessionTimeoutMs(prop.getSessionTimeoutMs());
-        config.setConnectionTimeoutMs(prop.getConnectionTimeoutMs());
-        return config;
-    }
+	@Bean
+	@ConditionalOnMissingBean
+	public ZookeeperConfig getZookeeperRegistryConfig(SofaDashboardZookeeperProperties prop) {
+		ZookeeperConfig config = new ZookeeperConfig();
+		config.setAddress(prop.getAddress());
+		config.setBaseSleepTimeMs(prop.getBaseSleepTimeMs());
+		config.setMaxRetries(prop.getMaxRetries());
+		config.setSessionTimeoutMs(prop.getSessionTimeoutMs());
+		config.setConnectionTimeoutMs(prop.getConnectionTimeoutMs());
+		return config;
+	}
 
-    @Bean(destroyMethod = "shutdown")
-    @ConditionalOnMissingBean
-    public ZookeeperClient zookeeperRegistryClient(SofaDashboardZookeeperProperties prop,
-                                                   List<LifecycleHandler> provider) {
-        ZookeeperConfig config = getZookeeperRegistryConfig(prop);
-        ZookeeperClient client = new ZookeeperClient(config);
-        if (!CollectionUtils.isEmpty(provider)) {
-            provider.forEach(client::addLifecycleHandler);
-        }
-        return client;
-    }
+	@Bean(destroyMethod = "shutdown")
+	@ConditionalOnMissingBean
+	public ZookeeperClient zookeeperRegistryClient(SofaDashboardZookeeperProperties prop, List<LifecycleHandler> provider) {
+		ZookeeperConfig config = getZookeeperRegistryConfig(prop);
+		ZookeeperClient client = new ZookeeperClient(config);
+		if (!CollectionUtils.isEmpty(provider)) {
+			provider.forEach(client::addLifecycleHandler);
+		}
+		return client;
+	}
 
-    @Bean
-    @ConditionalOnMissingBean
-    public AppPublisher getAppPublisher(Application application, ZookeeperClient client) {
-        return new ZookeeperAppPublisher(application, client);
-    }
+	@Bean
+	@ConditionalOnMissingBean
+	public AppPublisher getAppPublisher(Application application, ZookeeperClient client) {
+		return new ZookeeperAppPublisher(application, client);
+	}
 
-    private String getHostIp(SofaDashboardClientProperties properties) {
-        NetworkAddressUtils.calculate(null, null);
-        String ip = null;
-        boolean isInstanceIpEmpty = StringUtils.isEmpty(properties.getInstanceIp());
-        if (isInstanceIpEmpty) {
-            boolean isVirtualHostEmpty = StringUtils.isEmpty(properties.getVirtualHost());
-            if (isVirtualHostEmpty) {
-                ip = NetworkAddressUtils.getLocalIP();
-            } else {
-                ip = properties.getVirtualHost();
-            }
-        } else {
-            ip = properties.getInstanceIp();
-        }
-        return ip;
-    }
+	private int getPort(SofaDashboardClientProperties properties,Environment env) {
+		String virtualPort = properties.getVirtualPort();
+		if(StringUtils.isEmpty(virtualPort)) {
+			return  Integer.parseInt(env.getProperty(KEY_SERVER_PORT, DEFAULT_SERVER_PORT));
+		}else {
+			return Integer.valueOf(virtualPort);
+		}
+	}
+
+	private String getHostIp(SofaDashboardClientProperties properties) {
+		NetworkAddressUtils.calculate(null, null);
+		String ip = null;
+		boolean isInstanceIpEmpty = StringUtils.isEmpty(properties.getInstanceIp());
+		if (isInstanceIpEmpty) {
+			boolean isVirtualHostEmpty = StringUtils.isEmpty(properties.getVirtualHost());
+			if (isVirtualHostEmpty) {
+				ip = NetworkAddressUtils.getLocalIP();
+			} else {
+				ip = properties.getVirtualHost();
+			}
+		} else {
+			ip = properties.getInstanceIp();
+		}
+		return ip;
+	}
 }

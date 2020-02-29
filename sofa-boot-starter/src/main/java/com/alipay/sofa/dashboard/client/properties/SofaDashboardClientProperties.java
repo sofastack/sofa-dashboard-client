@@ -152,12 +152,10 @@ public class SofaDashboardClientProperties {
         if (environment == null) {
             return null;
         }
-        String substring = enclosingMethodName.substring(3);
-        String camelToDot = camelToDot(substring);
-        String key = SOFA_DASHBOARD_PREFIX + "." + camelToDot;
+        String key = SOFA_DASHBOARD_PREFIX + "." + camelToDot(enclosingMethodName.substring(3));
         String dashboardPropertie = environment.getProperty(key);
         if (StringUtils.isEmpty(dashboardPropertie)) {
-            String property = environment.getProperty(SOFA_RPC_PREFIX + "." + camelToDot);
+            String property = environment.getProperty(SOFA_RPC_PREFIX + "." + camelToDot(enclosingMethodName.substring(3)));
             return property;
         } else {
             return dashboardPropertie;
