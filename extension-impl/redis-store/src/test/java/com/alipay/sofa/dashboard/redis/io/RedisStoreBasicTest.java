@@ -64,7 +64,7 @@ public class RedisStoreBasicTest {
 
     @Test
     public void writeRecordAndRead() {
-        final HostAndPort hostAndPort = new HostAndPort("127.0.0.1", 8080);
+        final HostAndPort hostAndPort = new HostAndPort("127.0.0.1", "10.41.0.1", 8080);
         final String schemeName = "test";
         List<StoreRecord> samples = Lists.newArrayList(StoreRecord.newBuilder()
             .schemeName(schemeName).timestamp(System.currentTimeMillis()).value("aaaaa").build());
