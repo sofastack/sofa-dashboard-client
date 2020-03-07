@@ -183,9 +183,9 @@ public class SofaDashboardClientProperties {
 
     @Override
     public String toString() {
-        return "SofaDashboardClientProperties{" + "enable=" + enable + ", instanceIp='" + instanceIp
-               + '\'' + ", storeInitDelayExp=" + storeInitDelayExp + ", storeUploadPeriodExp="
-               + storeUploadPeriodExp + "virtualHost=" + virtualHost + "virtualPort=" + virtualPort
-               + "internalHost=" + internalHost + '}';
+        return "SofaDashboardClientProperties{" + "enable=" + enable + ", instanceIp='"
+               + instanceIp + '\'' + ", storeInitDelayExp=" + storeInitDelayExp
+               + ", storeUploadPeriodExp=" + storeUploadPeriodExp + "virtualHost=" + virtualHost
+               + "virtualPort=" + virtualPort + "internalHost=" + internalHost + '}';
     }
 }
