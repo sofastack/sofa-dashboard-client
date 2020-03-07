@@ -115,7 +115,7 @@ public class AppPublisherConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AppPublisher getAppPublisher(Application application, ZookeeperClient client) {
+    public AppPublisher appPublisher(Application application, ZookeeperClient client) {
         return new ZookeeperAppPublisher(application, client);
     }
 
