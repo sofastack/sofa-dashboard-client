@@ -76,12 +76,14 @@ public class AppPublisherConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = SofaDashboardClientProperties.SOFA_DASHBOARD_PREFIX, value = "arkEnable", matchIfMissing = true)
     public IntrospectBizEndpoint introspectBizEndpoint() {
         return new IntrospectBizEndpoint();
     }
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = SofaDashboardClientProperties.SOFA_DASHBOARD_PREFIX, value = "arkEnable", matchIfMissing = true)
     public ArkBizLifecycleHandler bizStateListener(IntrospectBizEndpoint endpoint,
                                                    Application application) {
         return new ArkBizLifecycleHandler(endpoint, application);
@@ -100,15 +102,16 @@ public class AppPublisherConfiguration {
     }
 
     @Bean(destroyMethod = "shutdown")
-	@ConditionalOnMissingBean
-	public ZookeeperClient zookeeperRegistryClient(SofaDashboardZookeeperProperties prop, List<LifecycleHandler> provider) {
-		ZookeeperConfig config = getZookeeperRegistryConfig(prop);
-		ZookeeperClient client = new ZookeeperClient(config);
-		if (!CollectionUtils.isEmpty(provider)) {
-			provider.forEach(client::addLifecycleHandler);
-		}
-		return client;
-	}
+    @ConditionalOnMissingBean
+    public ZookeeperClient zookeeperRegistryClient(SofaDashboardZookeeperProperties prop,
+                                                   List<LifecycleHandler> provider) {
+        ZookeeperConfig config = getZookeeperRegistryConfig(prop);
+        ZookeeperClient client = new ZookeeperClient(config);
+        if (!CollectionUtils.isEmpty(provider)) {
+            provider.forEach(client::addLifecycleHandler);
+        }
+        return client;
+    }
 
     @Bean
     @ConditionalOnMissingBean

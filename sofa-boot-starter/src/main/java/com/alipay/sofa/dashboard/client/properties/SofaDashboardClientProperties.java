@@ -62,6 +62,11 @@ public class SofaDashboardClientProperties {
     private String             instanceIp            = "";
 
     /**
+     * 
+     * */
+    private boolean            arkEnable             = true;
+
+    /**
      * Dashboard度量数据存储上报延迟期望(s)
      */
     private long               storeInitDelayExp     = 30;
@@ -70,6 +75,14 @@ public class SofaDashboardClientProperties {
      * Dashboard度量数据存储上报周期(s)
      */
     private long               storeUploadPeriodExp  = 60;
+
+    public boolean isArkEnable() {
+        return arkEnable;
+    }
+
+    public void setArkEnable(boolean arkEnable) {
+        this.arkEnable = arkEnable;
+    }
 
     public boolean isEnable() {
         return enable;
@@ -170,9 +183,9 @@ public class SofaDashboardClientProperties {
 
     @Override
     public String toString() {
-        return "SofaDashboardClientProperties{" + "enable=" + enable + ", instanceIp='"
-               + instanceIp + '\'' + ", storeInitDelayExp=" + storeInitDelayExp
-               + ", storeUploadPeriodExp=" + storeUploadPeriodExp + "virtualHost=" + virtualHost
-               + "virtualPort=" + virtualPort + "internalHost=" + internalHost + '}';
+        return "SofaDashboardClientProperties{" + "enable=" + enable + ", instanceIp='" + instanceIp
+               + '\'' + ", storeInitDelayExp=" + storeInitDelayExp + ", storeUploadPeriodExp="
+               + storeUploadPeriodExp + "virtualHost=" + virtualHost + "virtualPort=" + virtualPort
+               + "internalHost=" + internalHost + '}';
     }
 }
