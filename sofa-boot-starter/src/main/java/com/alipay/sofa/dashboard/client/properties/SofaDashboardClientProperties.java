@@ -155,7 +155,8 @@ public class SofaDashboardClientProperties {
         String key = SOFA_DASHBOARD_PREFIX + "." + camelToDot(enclosingMethodName.substring(3));
         String dashboardPropertie = environment.getProperty(key);
         if (StringUtils.isEmpty(dashboardPropertie)) {
-            String property = environment.getProperty(SOFA_RPC_PREFIX + "." + camelToDot(enclosingMethodName.substring(3)));
+            String property = environment
+                .getProperty(SOFA_RPC_PREFIX + "." + camelToDot(enclosingMethodName.substring(3)));
             return property;
         } else {
             return dashboardPropertie;

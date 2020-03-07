@@ -77,11 +77,12 @@ public class DimensionStoreConfiguration {
         }
         String virtualPort = properties.getVirtualPort();
         String internalHost = properties.getInternalHost();
-		if(StringUtils.isEmpty(virtualPort)) {
-			return new HostAndPort(ip, internalHost, Integer.parseInt(env.getProperty(KEY_SERVER_PORT, DEFAULT_SERVER_PORT)));
-		}else {
-			return new HostAndPort(ip, internalHost, Integer.valueOf(virtualPort));
-		}
+        if (StringUtils.isEmpty(virtualPort)) {
+            return new HostAndPort(ip, internalHost, Integer.parseInt(env.getProperty(
+                KEY_SERVER_PORT, DEFAULT_SERVER_PORT)));
+        } else {
+            return new HostAndPort(ip, internalHost, Integer.valueOf(virtualPort));
+        }
     }
 
     /**
