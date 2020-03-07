@@ -28,85 +28,87 @@ import org.springframework.util.StringUtils;
  */
 public class HostAndPort implements Comparable<HostAndPort>, Serializable {
 
-	private static final int serialVersionUID = 0x11;
+    private static final int serialVersionUID = 0x11;
 
-	private String host;
+    private String           host;
 
-	private String internalHost;
+    private String           internalHost;
 
-	private int port;
+    private int              port;
 
-	// public HostAndPort() {
-	// }
+    // public HostAndPort() {
+    // }
 
-	public HostAndPort(String host, String interHost, int port) {
-		this.host = host;
-		this.port = port;
-		this.internalHost = interHost;
-	}
+    public HostAndPort(String host, String interHost, int port) {
+        this.host = host;
+        this.port = port;
+        this.internalHost = interHost;
+    }
 
-	/**
-	 * Convert host & port to instance id
-	 *
-	 * @return instance id
-	 */
-	public String toInstanceId() {
-		if (StringUtils.isEmpty(internalHost)) {
-			return String.format("%s_%d", host, port);
-		} else {
-			return String.format("%s_%s_%d", host, internalHost, port);
-		}
-	}
+    /**
+     * Convert host & port to instance id
+     *
+     * @return instance id
+     */
+    public String toInstanceId() {
+        if (StringUtils.isEmpty(internalHost)) {
+            return String.format("%s_%d", host, port);
+        } else {
+            return String.format("%s_%s_%d", host, internalHost, port);
+        }
+    }
 
-	public String getInternalHost() {
-		return "null".equals(internalHost) ? null : internalHost;
-	}
+    public String getInternalHost() {
+        return "null".equals(internalHost) ? null : internalHost;
+    }
 
-	public void setInternalHost(String internalHost) {
-		this.internalHost = internalHost;
-	}
+    public void setInternalHost(String internalHost) {
+        this.internalHost = internalHost;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    public void setPort(int port) {
+        this.port = port;
+    }
 
-	@Override
-	public int compareTo(HostAndPort o) {
-		int hostSign = Integer.compare(host.compareTo(o.host), 0) << 2;
-		int internalSign = Integer.compare(internalHost.compareTo(o.internalHost), 0) << 1;
-		int portSign = Integer.compare(port, o.port);
-		return hostSign + portSign + internalSign;
-	}
+    @Override
+    public int compareTo(HostAndPort o) {
+        int hostSign = Integer.compare(host.compareTo(o.host), 0) << 2;
+        int internalSign = Integer.compare(internalHost.compareTo(o.internalHost), 0) << 1;
+        int portSign = Integer.compare(port, o.port);
+        return hostSign + portSign + internalSign;
+    }
 
-	@Override
-	public String toString() {
-		return "HostAndPort{" + "host='" + host + '\'' + ", internalHost='" + internalHost + '\'' + ", port=" + port + '}';
-	}
+    @Override
+    public String toString() {
+        return "HostAndPort{" + "host='" + host + '\'' + ", internalHost='" + internalHost + '\''
+               + ", port=" + port + '}';
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-		HostAndPort that = (HostAndPort) o;
-		return getPort() == that.getPort() && Objects.equals(getHost(), that.getHost()) && Objects.equals(getInternalHost(), that.getInternalHost());
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        HostAndPort that = (HostAndPort) o;
+        return getPort() == that.getPort() && Objects.equals(getHost(), that.getHost())
+               && Objects.equals(getInternalHost(), that.getInternalHost());
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getHost(), getInternalHost(), getPort());
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(getHost(), getInternalHost(), getPort());
+    }
 }

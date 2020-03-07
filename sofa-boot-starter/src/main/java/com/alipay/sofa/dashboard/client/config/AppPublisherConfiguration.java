@@ -45,7 +45,7 @@ import java.util.List;
 @Configuration
 @ConditionalOnWebApplication
 @EnableConfigurationProperties({ SofaDashboardClientProperties.class,
-                                 SofaDashboardZookeeperProperties.class })
+                                SofaDashboardZookeeperProperties.class })
 @ConditionalOnProperty(prefix = "com.alipay.sofa.dashboard.client", value = "enable", matchIfMissing = true)
 public class AppPublisherConfiguration {
 
