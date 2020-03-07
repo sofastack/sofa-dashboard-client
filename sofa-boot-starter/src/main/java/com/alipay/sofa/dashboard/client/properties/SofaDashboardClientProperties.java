@@ -62,6 +62,11 @@ public class SofaDashboardClientProperties {
     private String             instanceIp            = "";
 
     /**
+     * 
+     * */
+    private boolean            arkEnable             = true;
+
+    /**
      * Dashboard度量数据存储上报延迟期望(s)
      */
     private long               storeInitDelayExp     = 30;
@@ -70,6 +75,14 @@ public class SofaDashboardClientProperties {
      * Dashboard度量数据存储上报周期(s)
      */
     private long               storeUploadPeriodExp  = 60;
+
+    public boolean isArkEnable() {
+        return arkEnable;
+    }
+
+    public void setArkEnable(boolean arkEnable) {
+        this.arkEnable = arkEnable;
+    }
 
     public boolean isEnable() {
         return enable;
@@ -155,7 +168,8 @@ public class SofaDashboardClientProperties {
         String key = SOFA_DASHBOARD_PREFIX + "." + camelToDot(enclosingMethodName.substring(3));
         String dashboardPropertie = environment.getProperty(key);
         if (StringUtils.isEmpty(dashboardPropertie)) {
-            String property = environment.getProperty(SOFA_RPC_PREFIX + "." + camelToDot(enclosingMethodName.substring(3)));
+            String property = environment
+                .getProperty(SOFA_RPC_PREFIX + "." + camelToDot(enclosingMethodName.substring(3)));
             return property;
         } else {
             return dashboardPropertie;
@@ -169,9 +183,9 @@ public class SofaDashboardClientProperties {
 
     @Override
     public String toString() {
-        return "SofaDashboardClientProperties{" + "enable=" + enable + ", instanceIp='"
-               + instanceIp + '\'' + ", storeInitDelayExp=" + storeInitDelayExp
-               + ", storeUploadPeriodExp=" + storeUploadPeriodExp + "virtualHost=" + virtualHost
-               + "virtualPort=" + virtualPort + "internalHost=" + internalHost + '}';
+        return "SofaDashboardClientProperties{" + "enable=" + enable + ", instanceIp='" + instanceIp
+               + '\'' + ", storeInitDelayExp=" + storeInitDelayExp + ", storeUploadPeriodExp="
+               + storeUploadPeriodExp + "virtualHost=" + virtualHost + "virtualPort=" + virtualPort
+               + "internalHost=" + internalHost + '}';
     }
 }
