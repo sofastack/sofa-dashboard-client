@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>sofa-dashboard-client</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<description>SOFADashboard Client Projects</description>
 	<url>https://github.com/sofastack/sofa-dashboard-client</url>
 
@@ -77,17 +77,17 @@
 			<dependency>
 				<groupId>com.alipay.sofa</groupId>
 				<artifactId>dashboard-client-core</artifactId>
-				<version>1.1.0-SNAPSHOT</version>
+				<version>1.1.1-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>com.alipay.sofa</groupId>
 				<artifactId>dashboard-ext-redis-store</artifactId>
-				<version>1.1.0-SNAPSHOT</version>
+				<version>1.1.1-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>com.alipay.sofa</groupId>
 				<artifactId>dashboard-client-sofa-boot-starter</artifactId>
-				<version>1.1.0-SNAPSHOT</version>
+				<version>1.1.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
