@@ -47,22 +47,12 @@ public class LoggersDescriptor implements Serializable {
 
         private String           configuredLevel;
 
-        private String           effectiveLevel;
-
         public String getConfiguredLevel() {
             return configuredLevel;
         }
 
         public void setConfiguredLevel(String configuredLevel) {
             this.configuredLevel = configuredLevel;
-        }
-
-        public String getEffectiveLevel() {
-            return effectiveLevel;
-        }
-
-        public void setEffectiveLevel(String effectiveLevel) {
-            this.effectiveLevel = effectiveLevel;
         }
     }
 }

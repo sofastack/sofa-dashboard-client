@@ -17,7 +17,7 @@
 package com.alipay.sofa.dashboard.client.listener;
 
 import com.alipay.sofa.dashboard.client.registry.AppPublisher;
-import com.alipay.sofa.healthcheck.startup.ReadinessCheckListener;
+import com.alipay.sofa.healthcheck.ReadinessCheckListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Status;

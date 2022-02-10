@@ -63,17 +63,16 @@ public class ActuatorLoggersDimension implements ApplicationDimension<LoggersDes
         //
         Set<LogLevel> levels = (Set<LogLevel>) loggersInfo.get("levels");
         Map<String, LoggersEndpoint.LoggerLevels> loggers =
-            (Map<String, LoggersEndpoint.LoggerLevels>) loggersInfo.get("loggers");
+                (Map<String, LoggersEndpoint.LoggerLevels>) loggersInfo.get("loggers");
 
         // Map to core definition
         List<String> levelsDesc = levels.stream().map(String::valueOf).collect(Collectors.toList());
         Map<String, LoggersDescriptor.LoggerItem> loggersDesc = loggers.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, entry -> {
-                LoggersDescriptor.LoggerItem item = new LoggersDescriptor.LoggerItem();
-                item.setConfiguredLevel(entry.getValue().getConfiguredLevel());
-                item.setEffectiveLevel(entry.getValue().getEffectiveLevel());
-                return item;
-            }));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> {
+                    LoggersDescriptor.LoggerItem item = new LoggersDescriptor.LoggerItem();
+                    item.setConfiguredLevel(entry.getValue().getConfiguredLevel());
+                    return item;
+                }));
 
         LoggersDescriptor descriptor = new LoggersDescriptor();
         descriptor.getLevels().addAll(levelsDesc);

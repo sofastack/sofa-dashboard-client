@@ -20,7 +20,7 @@ import com.alipay.sofa.dashboard.client.dimension.ApplicationDimension;
 import com.alipay.sofa.dashboard.client.model.io.RecordName;
 import com.alipay.sofa.dashboard.client.model.health.HealthDescriptor;
 import com.alipay.sofa.dashboard.client.utils.JsonUtils;
-import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthComponent;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 
 /**
@@ -46,7 +46,7 @@ public class ActuatorHealthDimension implements ApplicationDimension<HealthDescr
 
     @Override
     public HealthDescriptor currentValue() {
-        Health health = endpoint.health();
+        HealthComponent health = endpoint.health();
         //
         // Consider of dependency design, we do not use an actuator model directly.
         // We choose to define a serializable model in core module,

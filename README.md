@@ -25,7 +25,7 @@ SOFADashboard client 并非是直接通过 API 调用的方式将自身应用信
 ```xml
 <dependency>
   <groupId>com.alipay.sofa</groupId>
-  <artifactId>dashboard-sofa-boot-starter</artifactId>
+  <artifactId>dashboard-client-sofa-boot-starter</artifactId>
   <version>${latest.version}</version>
 </dependency>
 ```

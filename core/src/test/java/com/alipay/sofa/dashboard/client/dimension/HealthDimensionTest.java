@@ -34,7 +34,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author chen.pengzhi (chpengzh@foxmail.com)
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = DimensionTestContext.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = DimensionTestContext.class, properties = { "management.endpoints.web.exposure.include=env,health,info,loggers,mappings,metrics" })
 public class HealthDimensionTest {
 
     private static final Logger     LOGGER = LoggerFactory.getLogger(HealthDescriptor.class);
