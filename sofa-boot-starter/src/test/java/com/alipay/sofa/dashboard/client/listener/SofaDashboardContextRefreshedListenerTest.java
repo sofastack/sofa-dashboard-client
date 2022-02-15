@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @date 2019-08-25 15:04
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = SofaDashboardContextRefreshedListenerTest.TestApplicationContext.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest(classes = SofaDashboardContextRefreshedListenerTest.TestApplicationContext.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK, properties = { "management.endpoints.web.exposure.include=env,health,info,loggers,mappings,metrics" })
 public class SofaDashboardContextRefreshedListenerTest {
 
     @Test
